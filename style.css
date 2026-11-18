@@ -147,3 +147,109 @@
 .exercise-save-error{color:#ffcf8b}
 .exercise-retry{margin-top:8px}
 @media(max-width:560px){.lesson-exercise{padding:12px}.exercise-question-en{font-size:14px}.exercise-choice{padding:11px;font-size:13px}}
+
+
+/* LEXORA PLAY WORLD — complete game-first interface */
+body{background:#f4f7ff;color:#18233b}
+.topbar{background:rgba(255,255,255,.94);border-bottom:1px solid #e4e9f3;box-shadow:0 5px 24px #1a2d4a0a}
+.topbar nav a{color:#4c5a73}
+.brand{color:#172542}
+.brand small{color:#8390a7}
+.hero,.courses-section,.stats,#method,.levels,.pro-section{display:none!important}
+.game-world{max-width:1180px;margin:0 auto;padding:30px 24px 70px;direction:rtl}
+.game-welcome{min-height:330px;position:relative;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;padding:35px 44px;border-radius:28px;background:linear-gradient(115deg,#172b54,#355d9b 62%,#68b6d7);color:#fff;box-shadow:0 18px 48px #213f702b}
+.game-welcome-copy{position:relative;z-index:2;max-width:520px}
+.game-kicker{display:inline-flex;align-items:center;gap:7px;color:#419b84;font-size:11px;font-weight:900;letter-spacing:1.2px}
+.game-welcome .game-kicker{color:#a5f4db}
+.game-welcome h1{font-size:clamp(29px,4vw,48px);line-height:1.35;margin:13px 0;color:white}
+.game-welcome h1 em{display:block;color:#a5f4db;font-style:normal}
+.game-welcome p{max-width:460px;color:#e2eaf8;font-size:15px;line-height:2}
+.game-primary{display:inline-flex;align-items:center;justify-content:center;gap:18px;border:0;border-radius:14px;background:#72e1bd;color:#17324b;padding:13px 22px;font-family:inherit;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 7px 0 #319a7a;transition:transform .15s,box-shadow .15s}
+.game-primary:hover{transform:translateY(-2px);box-shadow:0 9px 0 #319a7a}
+.game-primary:active{transform:translateY(4px);box-shadow:0 3px 0 #319a7a}
+.game-hero-art{height:270px;position:relative;overflow:hidden}
+.game-cloud{position:absolute;width:100px;height:34px;background:#ffffffb8;border-radius:50px;filter:blur(.2px)}
+.game-cloud:before,.game-cloud:after{content:"";position:absolute;background:inherit;border-radius:50%}
+.game-cloud:before{width:42px;height:42px;top:-18px;left:18px}.game-cloud:after{width:55px;height:55px;top:-26px;right:16px}
+.cloud-a{top:28px;left:8%}.cloud-b{top:76px;right:3%;transform:scale(.7)}
+.hero-ground{position:absolute;bottom:-48px;left:-10%;width:120%;height:105px;border-radius:50%;background:#83d7a2}
+.cartoon-character{position:absolute;bottom:39px;width:104px;height:178px;animation:characterFloat 2.8s ease-in-out infinite}
+.cartoon-character .face{position:absolute;top:17px;left:21px;width:65px;height:65px;border-radius:45% 45% 48% 48%;background:#ffd6b2;color:#29334c;text-align:center;padding-top:17px;font-size:26px;font-style:normal;z-index:2}
+.cartoon-character .hair{position:absolute;top:5px;left:18px;width:72px;height:35px;border-radius:50% 50% 20% 20%;background:#593b36;z-index:3}
+.cartoon-character .body{position:absolute;top:77px;left:11px;width:86px;height:92px;border-radius:34px 34px 17px 17px;background:#f28c9d}
+.cartoon-character .arm{position:absolute;top:89px;right:-4px;width:25px;height:62px;border-radius:20px;background:#ffd6b2;transform:rotate(-22deg);transform-origin:top}
+.hero-mia{left:21%;z-index:2}.hero-mia .body{background:#f28c9d}
+.hero-max{left:53%;transform:scale(.88);animation-delay:.5s}.hero-max .hair{background:#47372f}.hero-max .body{background:#78a9f5}
+.hero-star{position:absolute;color:#ffe28b;font-size:27px;animation:starPulse 1.8s ease-in-out infinite}.star-a{top:30px;left:45%}.star-b{top:112px;right:13%;animation-delay:.6s}
+@keyframes characterFloat{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@keyframes starPulse{0%,100%{transform:scale(.8) rotate(-10deg)}50%{transform:scale(1.2) rotate(12deg)}}
+.game-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0 42px}
+.game-stat{display:flex;align-items:center;gap:13px;background:white;border:1px solid #e8edf6;border-radius:18px;padding:15px 20px;box-shadow:0 8px 25px #1c37610b}
+.stat-emoji{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#f0f6ff;font-size:22px}
+.game-stat strong{display:block;color:#1c3155;font-size:22px}.game-stat small{color:#8995a9;font-size:11px}
+.game-section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:20px}
+.game-section-head h2{font-size:27px;color:#1c2e50;margin:7px 0}
+.game-section-head p{margin:0;color:#77849a;font-size:13px}
+.map-badge{border-radius:30px;padding:9px 14px;background:#e2f7ef;color:#23896b;font-size:11px;font-weight:800;white-space:nowrap}
+.episode-path{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.episode-card{border:1px solid #e5eaf3;background:white;border-radius:20px;padding:12px;text-align:right;cursor:pointer;box-shadow:0 9px 28px #203c650d;transition:transform .18s,box-shadow .18s}
+.episode-card:hover{transform:translateY(-5px);box-shadow:0 16px 32px #203c651a}
+.episode-art{height:150px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:14px;margin-bottom:13px;font-size:56px}
+.episode-art b{font-size:76px;filter:drop-shadow(0 8px 5px #22354a22)}
+.episode-art i{font-style:normal;font-size:35px;position:absolute;bottom:8px;left:22%}
+.episode-art i+i{left:auto;right:20%}
+.art-park{background:linear-gradient(#bceaff,#e0f7ff 65%,#9ddc9f 65%)}
+.art-home{background:linear-gradient(#fbe2bd,#fff0d5 70%,#f1bd83 70%)}
+.art-cafe{background:linear-gradient(#e8d9ff,#f5edff 70%,#d9b7a1 70%)}
+.episode-number{display:block;color:#389a7d;font-size:10px;font-weight:900;margin-bottom:6px}
+.episode-card strong{display:block;color:#1b2e50;font-size:16px}
+.episode-card small{display:block;color:#8793a6;margin-top:5px;font-size:11px}
+.episode-reward{display:inline-block;margin-top:12px;color:#b47b19;background:#fff7df;border-radius:20px;padding:6px 10px;font-size:10px;font-weight:800}
+.cartoon-game-stage{margin-top:10px;background:white;border:1px solid #e6ebf4;border-radius:24px;padding:18px;box-shadow:0 14px 38px #1b34520e}
+.stage-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;color:#53627a;font-size:12px;font-weight:800}
+.stage-back,.game-map-link{border:0;background:#f0f4fa;color:#43536d;border-radius:10px;padding:9px 13px;font-family:inherit;font-weight:800;cursor:pointer}
+.stage-hearts{color:#e35f70}
+.cartoon-scene{height:285px;position:relative;overflow:hidden;border-radius:18px;background:#aee1f5}
+.scene-sky{position:absolute;inset:0 0 32% 0;background:linear-gradient(#8ed2f2,#d8f4ff)}
+.scene-sun{position:absolute;top:24px;right:9%;width:58px;height:58px;background:#ffdf78;border-radius:50%;box-shadow:0 0 0 12px #ffe9a144}
+.scene-cloud{position:absolute;top:55px;left:17%;width:100px;height:30px;border-radius:30px;background:#ffffffd9}
+.scene-cloud:before,.scene-cloud:after{content:"";position:absolute;background:inherit;border-radius:50%}
+.scene-cloud:before{width:40px;height:40px;top:-18px;left:20px}.scene-cloud:after{width:50px;height:50px;top:-25px;right:15px}
+.cloud-two{top:100px;left:55%;transform:scale(.7)}
+.scene-landscape{position:absolute;bottom:0;left:-5%;width:110%;height:43%;background:#8bd19b;border-radius:50% 50% 0 0}
+.scene-prop{position:absolute;bottom:55px;left:49%;font-size:72px;z-index:1;filter:drop-shadow(0 8px 6px #23354b22)}
+.scene-character{position:absolute;bottom:24px;width:90px;height:170px;z-index:2;animation:characterFloat 3s ease-in-out infinite}
+.scene-character-a{left:22%}.scene-character-b{right:21%;animation-delay:.4s}
+.char-face{position:absolute;top:10px;left:15px;width:60px;height:61px;border-radius:45%;background:#ffd8b9;display:grid;place-items:center;color:#24334e;font-size:25px;z-index:2}
+.char-hair{position:absolute;top:0;left:13px;width:64px;height:34px;border-radius:50% 50% 15% 15%;background:#57382f;z-index:3}
+.char-body{position:absolute;top:70px;left:4px;width:83px;height:95px;border-radius:28px 28px 14px 14px;background:#f08ca0}
+.scene-character-b .char-body{background:#78a9f5}
+.speech-bubble{position:absolute;top:20px;left:50%;transform:translateX(-50%);z-index:4;max-width:70%;background:white;color:#263753;padding:11px 17px;border-radius:16px;font:700 14px/1.5 "DM Sans",sans-serif;direction:ltr;text-align:center;box-shadow:0 7px 20px #2b49611a}
+.speech-bubble:after{content:"";position:absolute;bottom:-9px;left:50%;border-width:10px 9px 0;border-style:solid;border-color:white transparent transparent}
+.scene-caption{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:4;color:#ffffffde;font-size:10px;font-weight:900;letter-spacing:2px;text-shadow:0 2px 5px #25384b}
+.game-question-card{max-width:690px;margin:18px auto 5px;padding:18px 22px;border:1px solid #e8edf5;border-radius:18px;background:#fbfcff}
+.question-progress{display:flex;align-items:center;justify-content:space-between;gap:15px;color:#7b8799;font-size:11px;margin-bottom:16px}
+.question-progress>div{height:7px;flex:1;max-width:190px;border-radius:20px;background:#e7edf5;overflow:hidden}
+.question-progress i{display:block;height:100%;width:0;background:#69d7b1;border-radius:20px;transition:width .25s}
+.sentence-en{direction:ltr;text-align:center;font:800 clamp(21px,3vw,28px)/1.6 "DM Sans",sans-serif;color:#1c3153;margin:12px 0 4px}
+.sentence-en b{display:inline-block;color:#239d79;background:#dff8ed;border-bottom:3px dashed #5bc69f;border-radius:7px;padding:0 8px}
+.sentence-en b.blank-wrong{color:#b77a17;background:#fff0ce;border-color:#e4b85d}
+.sentence-ar{text-align:center;color:#78859a;font-size:13px;margin:3px 0 18px}
+.answer-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.answer-option{padding:13px;border:2px solid #e2e9f2;border-radius:13px;background:white;color:#213653;font:800 17px "DM Sans",sans-serif;cursor:pointer;transition:.15s}
+.answer-option:hover:not(:disabled){border-color:#61d2ab;background:#f1fff9;transform:translateY(-2px)}
+.answer-option:disabled{cursor:default;opacity:1}
+.answer-option.option-correct{border-color:#42bb91;background:#e8fff5;color:#16835e}
+.answer-option.option-wrong{border-color:#e6a0a0;background:#fff0f0;color:#bd5252}
+.answer-feedback{margin-top:14px;padding:13px 15px;border-radius:13px;background:#eaf9f2;border:1px solid #c6eddd;color:#246e55}
+.answer-feedback strong{font-size:14px}.answer-feedback p{font-size:12px;line-height:1.8;margin:6px 0 0}
+.answer-feedback small{display:block;margin-top:8px;color:#278664}
+.next-question{margin-top:13px;min-width:150px}
+.episode-finish-reward{font-weight:900;color:#9b741d}
+.game-map-link{display:block;margin:12px auto 0}
+.game-how{display:flex;align-items:center;gap:15px;margin-top:35px;padding:18px 22px;border-radius:17px;background:#e9f1ff;color:#284064}
+.game-how>span{font-size:30px}.game-how strong{font-size:14px}.game-how p{margin:4px 0 0;color:#71809a;font-size:12px;line-height:1.8}
+.profile-section{background:#f4f7ff}
+@media(max-width:760px){
+ .game-world{padding:17px 14px 45px}.game-welcome{grid-template-columns:1fr;min-height:0;padding:26px 22px 0;gap:0}.game-welcome-copy{padding-bottom:12px}.game-welcome h1{font-size:31px}.game-welcome p{font-size:13px}.game-hero-art{height:190px}.cartoon-character{transform:scale(.78);transform-origin:bottom}.hero-max{transform:scale(.7)}.game-stats-row{gap:8px;margin:14px 0 30px}.game-stat{padding:11px 9px;gap:7px}.stat-emoji{width:34px;height:34px;font-size:18px}.game-stat strong{font-size:17px}.game-stat small{font-size:9px}.game-section-head{align-items:start;flex-direction:column}.game-section-head h2{font-size:23px}.episode-path{grid-template-columns:1fr;gap:12px}.episode-card{display:grid;grid-template-columns:108px 1fr;grid-template-rows:auto auto auto;column-gap:12px;align-items:center}.episode-art{grid-row:1/5;height:105px;margin:0}.episode-art b{font-size:49px}.episode-art i{font-size:25px}.episode-number{align-self:end}.episode-card strong{font-size:14px}.episode-card small{font-size:10px}.episode-reward{justify-self:start;margin-top:6px}.cartoon-game-stage{padding:10px}.cartoon-scene{height:230px}.scene-character{transform:scale(.75);transform-origin:bottom}.scene-character-b{transform:scale(.75)}.speech-bubble{font-size:12px;max-width:82%;top:14px}.scene-prop{font-size:55px}.game-question-card{padding:15px 12px}.answer-options{gap:7px}.answer-option{padding:12px 5px;font-size:15px}.game-how{align-items:start;padding:15px}
+}
