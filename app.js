@@ -498,25 +498,55 @@ function courseNode(tag, className, value) {
   return node;
 }
 
-function renderInteractiveTranscript(panel, player, tokens) {
+function renderInteractiveTranscript(panel, player, tokens, transcript) {
   const wrap = courseNode('div', 'interactive-transcript');
   const heading = courseNode('div', 'transcript-heading');
-  heading.append(courseNode('strong', '', 'النص التفاعلي'));
-  heading.append(courseNode('small', '', 'اضغط على أي كلمة لترى معناها'));
+  heading.append(courseNode('strong', '', tokens?.length ? 'النص التفاعلي المتزامن' : 'تفريغ الحوار الكامل'));
+  heading.append(courseNode('small', '', tokens?.length ? 'اضغط على أي كلمة لترى معناها' : 'النص الإنجليزي المطابق للفيديو'));
   const wordArea = courseNode('div', 'transcript-words');
+  wrap.append(heading, wordArea);
+  panel.append(wrap);
+
+  if (!tokens?.length) {
+    if (transcript?.transcript_text) {
+      const transcriptText = courseNode('pre', 'transcript-full-text', transcript.transcript_text);
+      wordArea.append(transcriptText);
+      const actions = courseNode('div', 'transcript-actions');
+      const download = courseNode('button', 'btn btn-ghost', 'تنزيل التفريغ النصي TXT');
+      download.type = 'button';
+      download.addEventListener('click', () => {
+        const blob = new Blob([transcript.transcript_text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'LEXORA-transcript.txt';
+        document.body.append(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      });
+      actions.append(download);
+      if (transcript.source_url) {
+        const source = courseNode('a', 'course-source-link', 'المصدر الأصلي والتدريبات');
+        source.href = transcript.source_url;
+        source.target = '_blank';
+        source.rel = 'noopener noreferrer';
+        actions.append(source);
+      }
+      wrap.append(actions);
+      return;
+    }
+    wordArea.append(courseNode('p', 'course-muted', 'سيُضاف التفريغ النصي لهذا الفيديو قبل نشر الدرس.'));
+    return;
+  }
+
   const translation = courseNode('div', 'transcript-translation');
   translation.setAttribute('aria-live', 'polite');
   translation.append(courseNode('small', '', 'ترجمة الكلمة'));
   const selected = courseNode('strong', '', 'اضغط على كلمة للبدء');
   const pronunciation = courseNode('span', '', '');
   translation.append(selected, pronunciation);
-  wrap.append(heading, wordArea, translation);
-  panel.append(wrap);
-
-  if (!tokens?.length) {
-    wordArea.append(courseNode('p', 'course-muted', 'النص المتزامن لهذا الفيديو قيد الإعداد. ستظهر الكلمات هنا بعد إضافة التفريغ وتوقيت كل كلمة.'));
-    return;
-  }
+  wrap.append(translation);
   let activeIndex = -1;
   const buttons = tokens.map((token, index) => {
     const button = courseNode('button', 'transcript-word', token.token_text);
@@ -575,7 +605,7 @@ function renderCourseMedia(container, mediaRows, transcriptByMedia = {}) {
       const transcriptPanel = courseNode('aside', 'video-transcript-panel');
       transcriptPanel.setAttribute('aria-label', 'النص الإنجليزي التفاعلي والترجمة العربية');
       learningLayout.append(player, transcriptPanel);
-      renderInteractiveTranscript(transcriptPanel, player, transcriptByMedia[media.id] || []);
+      renderInteractiveTranscript(transcriptPanel, player, transcriptByMedia[media.id]?.tokens || [], transcriptByMedia[media.id]?.transcript || null);
       item.append(learningLayout);
     } else if (media.media_type === 'audio') {
       const player = document.createElement('audio');
@@ -682,7 +712,7 @@ async function loadCourseCatalog() {
     if (lessonsResult.error) throw lessonsResult.error;
     const lessons = lessonsResult.data || [];
     const ids = lessons.map(lesson => lesson.id);
-    let media = [], vocabulary = [], transcriptTokens = [];
+    let media = [], vocabulary = [], transcriptTokens = [], fullTranscripts = [];
     if (ids.length) {
       const [mediaResult, vocabularyResult] = await Promise.all([
         supabase.from('lesson_media').select('id,lesson_id,media_type,external_url,language,caption,sort_order').in('lesson_id', ids).order('sort_order'),
@@ -694,9 +724,14 @@ async function loadCourseCatalog() {
       vocabulary = vocabularyResult.data || [];
       const mediaIds = media.map(item => item.id);
       if (mediaIds.length) {
-        const transcriptResult = await supabase.from('lesson_transcript_tokens').select('id,media_id,sequence,token_text,translation_ar,start_ms,end_ms,speaker').in('media_id', mediaIds).order('sequence');
-        if (transcriptResult.error) throw transcriptResult.error;
-        transcriptTokens = transcriptResult.data || [];
+        const [tokenResult, fullTranscriptResult] = await Promise.all([
+          supabase.from('lesson_transcript_tokens').select('id,media_id,sequence,token_text,translation_ar,start_ms,end_ms,speaker').in('media_id', mediaIds).order('sequence'),
+          supabase.from('lesson_transcripts').select('media_id,transcript_text,source_url,source_name,language').in('media_id', mediaIds)
+        ]);
+        if (tokenResult.error) throw tokenResult.error;
+        if (fullTranscriptResult.error) throw fullTranscriptResult.error;
+        transcriptTokens = tokenResult.data || [];
+        fullTranscripts = fullTranscriptResult.data || [];
       }
     }
     courseCatalogData = (levelsResult.data || []).map(level => ({
@@ -706,7 +741,10 @@ async function loadCourseCatalog() {
         lessons: lessons.filter(lesson => lesson.unit_id === unit.id).map(lesson => ({
           ...lesson,
           media: media.filter(item => item.lesson_id === lesson.id),
-          transcriptByMedia: Object.fromEntries(media.filter(item => item.lesson_id === lesson.id).map(item => [item.id, transcriptTokens.filter(token => token.media_id === item.id)])),
+          transcriptByMedia: Object.fromEntries(media.filter(item => item.lesson_id === lesson.id).map(item => [item.id, {
+            tokens: transcriptTokens.filter(token => token.media_id === item.id),
+            transcript: fullTranscripts.find(row => row.media_id === item.id) || null
+          }])),
           vocabulary: vocabulary.filter(item => item.lesson_id === lesson.id)
         }))
       }))
