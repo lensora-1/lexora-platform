@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101b35"><meta name="robots" content="noindex,nofollow">
+<title>LEXORA | لوحة المدير</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<header class="bar"><a class="brand" href="/">LX <span>LEXORA</span></a><div class="bar-actions"><span id="adminIdentity">وصول آمن للمدير</span><button id="logoutBtn" class="btn ghost" hidden>تسجيل الخروج</button><a class="btn ghost" href="/">الموقع الرئيسي</a></div></header>
+<main class="wrap">
+<section id="loginPanel" class="login-card">
+<div class="eyebrow">LEXORA CONTROL CENTER</div><h1>دخول المدير الرئيسي</h1><p>هذه لوحة منفصلة ومحمية. لا يمكن للمتعلمين الوصول إلى أدوات الإدارة.</p>
+<form id="loginForm"><label>البريد الإلكتروني<input id="email" type="email" autocomplete="username" required></label><label>كلمة المرور<input id="password" type="password" autocomplete="current-password" required></label><button class="btn primary" id="loginSubmit">تسجيل الدخول</button></form><p id="loginMessage" class="message" role="status"></p>
+</section>
+<section id="deniedPanel" class="login-card" hidden><div class="lock">🔒</div><h1>ليس لديك صلاحية الإدارة</h1><p>تم تسجيل الدخول، لكن هذا الحساب غير مخوّل بدخول لوحة المدير الرئيسي.</p><button id="deniedLogout" class="btn ghost">تسجيل الخروج</button></section>
+<section id="dashboard" hidden>
+<div class="heading"><div><div class="eyebrow">PRIVATE ADMINISTRATION</div><h1>لوحة تحكم <em>LEXORA</em></h1><p>إدارة المنهج والمستويات والوحدات والدروس المنشورة.</p></div><div class="secure">● جلسة مدير موثّقة</div></div>
+<div class="welcome"><strong>مرحباً بك في مركز التحكم</strong><span>كل عمليات الحفظ والنشر محمية أيضاً بسياسات قاعدة البيانات.</span></div>
+<div class="stats"><article><small>المستويات</small><strong id="levelCount">—</strong></article><article><small>الوحدات</small><strong id="unitCount">—</strong></article><article><small>الدروس</small><strong id="lessonCount">—</strong></article><article><small>الدروس المنشورة</small><strong id="publishedCount">—</strong></article></div>
+<div class="grid">
+<form class="panel" id="levelForm"><h2><b>01</b> إضافة مستوى</h2><label>رمز المستوى<select id="levelCode"><option value="zero">من الصفر</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option></select></label><label>الاسم بالعربية<input id="levelAr" maxlength="100" required></label><label>الاسم بالإنجليزية<input id="levelEn" maxlength="100" required dir="ltr"></label><label>وصف المستوى<textarea id="levelDesc" rows="3" maxlength="400"></textarea></label><button class="btn primary">حفظ المستوى</button></form>
+<form class="panel" id="unitForm"><h2><b>02</b> إضافة وحدة</h2><label>المستوى<select id="unitLevel" required></select></label><label>اسم الوحدة بالعربية<input id="unitAr" maxlength="120" required></label><label>اسم الوحدة بالإنجليزية<input id="unitEn" maxlength="120" required dir="ltr"></label><button class="btn primary">حفظ الوحدة</button></form>
+<form class="panel" id="lessonForm"><h2><b>03</b> إنشاء درس</h2><label>الوحدة<select id="lessonUnit" required></select></label><label>عنوان الدرس بالعربية<input id="lessonAr" maxlength="160" required></label><label>عنوان الدرس بالإنجليزية<input id="lessonEn" maxlength="160" required dir="ltr"></label><label>وصف الدرس<textarea id="lessonSummary" rows="3" maxlength="500"></textarea></label><div class="two"><label>المدة بالدقائق<input id="lessonDuration" type="number" min="1" max="240" value="10" required></label><label>الوصول<select id="lessonPlan"><option value="free">مجاني</option><option value="pro">PRO</option></select></label></div><label>الحالة<select id="lessonStatus"><option value="draft">مسودة</option><option value="published">نشر الآن</option></select></label><button class="btn primary">حفظ الدرس</button></form>
+<section class="panel lesson-panel"><div class="panel-head"><h2><b>04</b> إدارة الدروس</h2><button type="button" id="refreshBtn" class="btn ghost">تحديث القائمة</button></div><div id="lessonsList" class="lessons-list">جارٍ تحميل الدروس…</div></section>
+</div><p id="adminMessage" class="message" role="status" aria-live="polite"></p>
+</section>
+</main><footer>LEXORA · Learn English. Live the Language.</footer>
+<script type="module" src="admin.js"></script>
+</body></html>
