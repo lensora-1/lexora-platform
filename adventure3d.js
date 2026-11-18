@@ -103,7 +103,7 @@ function animate(){if(!active)return;raf=requestAnimationFrame(animate);const dt
  let ix=move.x,iz=move.z;
  if(keys.KeyW||keys.ArrowUp)iz-=1;if(keys.KeyS||keys.ArrowDown)iz+=1;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;
  const len=Math.hypot(ix,iz);if(len>1){ix/=len;iz/=len;}
- if(!dialogOpen&&len>.05){const speed=7.2;const dx=ix*speed*dt,dz=iz*speed*dt;const nx=THREE.MathUtils.clamp(player.position.x+dx,-18,18),nz=THREE.MathUtils.clamp(player.position.z+dz,-34,18);player.position.x=nx;player.position.z=nz;yaw=Math.atan2(dx,dz);player.rotation.y=yaw;player.userData.walk=(player.userData.walk||0)+dt*10;player.position.y=Math.abs(Math.sin(player.userData.walk))*.055;}
+ if(!dialogOpen&&len>.05){const speed=7.2;const dx=ix*speed*dt,dz=iz*speed*dt;const nx=THREE.MathUtils.clamp(player.position.x+dx,-18,18),nz=THREE.MathUtils.clamp(player.position.z+dz,-34,18);player.position.x=nx;player.position.z=nz;yaw=Math.atan2(ix,-iz);player.rotation.y=yaw;player.userData.walk=(player.userData.walk||0)+dt*10;player.position.y=Math.abs(Math.sin(player.userData.walk))*.055;}
  velocityY-=18*dt;player.position.y+=velocityY*dt;if(player.position.y<=0){player.position.y=0;velocityY=0;onGround=true;}
  const behind=new THREE.Vector3(Math.sin(yaw)*8,5.2,Math.cos(yaw)*8);const target=player.position.clone().add(new THREE.Vector3(0,1.4,0));const desired=target.clone().add(behind);camera.position.lerp(desired,.11);camera.lookAt(target);
  renderer.render(scene,camera);
