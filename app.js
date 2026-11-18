@@ -1108,7 +1108,7 @@ loadCourseCatalog();
   const list=voices();const pick=list.find(v=>/^en-US/i.test(v.lang)&&/female|samantha|zira|aria|jenny/i.test(v.name))||list.find(v=>/^en-US/i.test(v.lang))||list.find(v=>/^en/i.test(v.lang));if(pick)u.voice=pick;
   speechSynthesis.speak(u);
  }
- function stats(){ $('gameXp').textContent=xp;$('gameHearts').textContent=hearts.toFixed(1).replace('.0','');$('stageHearts').textContent=hearts.toFixed(1).replace('.0','');$('gameStreak').textContent=completed; }
+ function stats(){ $('gameXp').textContent=window.LEXORA_ACCOUNT_PROGRESS?.getXP?.()??xp;$('gameHearts').textContent=hearts.toFixed(1).replace('.0','');$('stageHearts').textContent=hearts.toFixed(1).replace('.0','');$('gameStreak').textContent=completed; }
  function start(i){
   epIndex=i;qIndex=0;correct=0;hearts=5;answered=false;const ep=episodes[i];
   $('worldMap').hidden=true;stage.hidden=false;$('stageEpisodeLabel').textContent=ep.label;
