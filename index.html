@@ -12,10 +12,67 @@
 <body>
 <header class="topbar">
   <a class="brand" href="#"><span class="brand-mark">L<span>▶</span></span><span>LEXORA<small>LEARN ENGLISH. LIVE THE LANGUAGE.</small></span></a>
-  <nav><a href="#courses">الدروس</a><a href="#levels">المستويات</a><a href="#method">طريقة التعلم</a><a href="#pro">PRO</a></nav>
+  <nav><a href="#worldMap">المغامرات</a><a href="#rewards">كيف تلعب؟</a><a href="#pro">PRO</a></nav>
   <div class="actions"><button class="lang" id="langBtn">EN</button><button class="btn btn-ghost" id="loginBtn" data-modal="login">تسجيل الدخول</button><button class="btn btn-mint" id="signupBtn" data-modal="signup">ابدأ التعلم</button><button class="btn btn-ghost" id="accountBtn" hidden>حسابي</button><button class="btn btn-ghost" id="adminOpenBtn" hidden>إدارة المحتوى</button><button class="btn btn-ghost" id="logoutBtn" hidden>خروج</button><button class="menu" id="menuBtn" aria-label="القائمة">☰</button></div>
 </header>
 <main>
+
+<section id="gameWorld" class="game-world">
+  <div class="game-welcome">
+    <div class="game-welcome-copy">
+      <span class="game-kicker">LEXORA PLAY WORLD</span>
+      <h1>تعلّم الإنجليزية <em>داخل عالم من المغامرات!</em></h1>
+      <p>شاهد المشهد الكرتوني، اسمع الحوار، ثم أكمل الجملة لتساعد أبطال القصة.</p>
+      <button class="game-primary" id="startAdventure">ابدأ المغامرة <span>←</span></button>
+    </div>
+    <div class="game-hero-art" aria-label="شخصيات LEXORA الكرتونية">
+      <div class="game-cloud cloud-a"></div><div class="game-cloud cloud-b"></div>
+      <div class="cartoon-character hero-mia"><i class="hair"></i><i class="face">☺</i><i class="body"></i><i class="arm"></i></div>
+      <div class="cartoon-character hero-max"><i class="hair"></i><i class="face">☺</i><i class="body"></i><i class="arm"></i></div>
+      <span class="hero-star star-a">✦</span><span class="hero-star star-b">★</span>
+      <div class="hero-ground"></div>
+    </div>
+  </div>
+
+  <div class="game-stats-row">
+    <div class="game-stat"><span class="stat-emoji">⚡</span><div><strong id="gameXp">0</strong><small>نقاط الخبرة XP</small></div></div>
+    <div class="game-stat"><span class="stat-emoji">❤️</span><div><strong id="gameHearts">5</strong><small>محاولاتك</small></div></div>
+    <div class="game-stat"><span class="stat-emoji">🔥</span><div><strong id="gameStreak">0</strong><small>أيام متتالية</small></div></div>
+  </div>
+
+  <section class="game-map" id="worldMap">
+    <div class="game-section-head"><div><span class="game-kicker">اختر مغامرتك</span><h2>عالم القصص الكرتونية</h2><p>كل حلقة قصة قصيرة، كلمات جديدة، وتحديات تساعدك على الكلام.</p></div><span class="map-badge">المستوى الأول · من الصفر</span></div>
+    <div class="episode-path">
+      <button class="episode-card unlocked" data-episode="0"><span class="episode-art art-park"><b>🌳</b><i>👧🏻</i><i>👦🏻</i></span><span class="episode-number">الحلقة 01</span><strong>أول لقاء في الحديقة</strong><small>التحية والتعريف بالنفس</small><span class="episode-reward">⭐ +30 XP</span></button>
+      <button class="episode-card unlocked" data-episode="1"><span class="episode-art art-home"><b>🏡</b><i>🐱</i></span><span class="episode-number">الحلقة 02</span><strong>مفاجأة في المنزل</strong><small>الأشياء والأسماء البسيطة</small><span class="episode-reward">⭐ +30 XP</span></button>
+      <button class="episode-card unlocked" data-episode="2"><span class="episode-art art-cafe"><b>☕</b><i>🥐</i></span><span class="episode-number">الحلقة 03</span><strong>يوم في المقهى</strong><small>الطلبات وكلمات الحياة اليومية</small><span class="episode-reward">⭐ +30 XP</span></button>
+    </div>
+  </section>
+
+  <section class="cartoon-game-stage" id="cartoonStage" hidden>
+    <div class="stage-topbar"><button id="backToMap" class="stage-back">← العودة للمغامرات</button><span id="stageEpisodeLabel">الحلقة 01</span><span class="stage-hearts">❤️ <b id="stageHearts">5</b></span></div>
+    <div class="cartoon-scene" id="cartoonScene">
+      <div class="scene-sky"></div><div class="scene-sun"></div><div class="scene-cloud cloud-one"></div><div class="scene-cloud cloud-two"></div>
+      <div class="scene-landscape"></div><div class="scene-prop" id="sceneProp">🌳</div>
+      <div class="scene-character scene-character-a" id="sceneCharacterA"><span class="char-hair"></span><span class="char-face">☺</span><span class="char-body"></span></div>
+      <div class="scene-character scene-character-b" id="sceneCharacterB"><span class="char-hair"></span><span class="char-face">☺</span><span class="char-body"></span></div>
+      <div class="speech-bubble" id="sceneSpeech">Hello! What's your name?</div>
+      <div class="scene-caption" id="sceneCaption">A NEW FRIEND</div>
+    </div>
+    <div class="game-question-card">
+      <div class="question-progress"><span id="questionCounter">السؤال 1 من 5</span><div><i id="questionProgress"></i></div></div>
+      <span class="game-kicker">أكمل الجملة</span>
+      <p class="sentence-en" id="sentencePrompt">Hello! My <b>_____</b> is Mia.</p>
+      <p class="sentence-ar" id="sentenceTranslation">مرحباً! اسمي ميا.</p>
+      <div class="answer-options" id="answerOptions"></div>
+      <div class="answer-feedback" id="answerFeedback" hidden></div>
+      <button class="game-primary next-question" id="nextQuestion" hidden>التالي <span>←</span></button>
+    </div>
+  </section>
+
+  <section class="game-how" id="rewards"><span>🎮</span><div><strong>كيف تلعب وتتعلم؟</strong><p>شاهد القصة، اقرأ الجملة، اختر الكلمة الناقصة، تعلّم من التصحيح، واجمع نقاط الخبرة.</p></div></section>
+</section>
+
 <section class="hero">
   <div class="hero-copy"><div class="eyebrow"><i></i> تعلّم الإنجليزية بطريقة مختلفة</div>
     <h1>لا تحفظ الكلمات فقط،<br><em>عِش اللغة.</em></h1>
