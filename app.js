@@ -1341,9 +1341,10 @@ loadCourseCatalog();
    let gate=el('gamesLevelGate');if(!gate){gate=document.createElement('div');gate.id='gamesLevelGate';gate.className='games-level-gate';game.insertBefore(gate,el('detectiveIntro'));}
    const locked=level<3;gate.hidden=!locked;
    if(locked){el('detectiveIntro').hidden=true;el('detectivePlayer').hidden=true;el('detectiveFinish').hidden=true;gate.innerHTML='<span>🔒</span><h3>الألعاب تفتح عند LV 3</h3><p>اجمع الخبرة من القصص والدروس حتى تصل إلى المستوى الثالث.</p><strong>مستواك الحالي: LV '+level+'</strong><small>تحتاج '+Math.max(0,thresholds[2]-xp)+' XP إضافية</small>';}
+   else if(el('detectivePlayer').hidden&&el('detectiveFinish').hidden){el('detectiveIntro').hidden=false;}
   }
  }
- async function identify(){try{const result=await window.supabase?.auth?.getUser?.();const id=result?.data?.user?.id;if(id)userKey=id;}catch(e){}try{xp=Number(localStorage.getItem(XP_KEY_PREFIX+userKey)||0);}catch(e){xp=0;}ready=true;refresh();}
+ async function identify(){try{const result=await supabase.auth.getUser();const id=result?.data?.user?.id;if(id)userKey=id;}catch(e){}try{xp=Number(localStorage.getItem(XP_KEY_PREFIX+userKey)||0);}catch(e){xp=0;}ready=true;refresh();supabase.auth.onAuthStateChange((_event,session)=>{const nextKey=session?.user?.id||'guest';if(nextKey!==userKey){userKey=nextKey;try{xp=Number(localStorage.getItem(XP_KEY_PREFIX+userKey)||0);}catch(e){xp=0;}refresh();}});}
  window.addEventListener('lexora:xp',e=>{if(!ready)return;const amount=Math.max(0,Number(e.detail?.amount)||0);xp+=amount;try{localStorage.setItem(XP_KEY_PREFIX+userKey,String(xp));}catch(e){}refresh();});
  window.LEXORA_ACCOUNT_PROGRESS={getXP:()=>xp,getLevel:()=>levelFor(xp),addXP:amount=>window.dispatchEvent(new CustomEvent('lexora:xp',{detail:{amount}}))};
  identify();
