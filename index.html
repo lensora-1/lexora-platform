@@ -56,6 +56,8 @@
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
+const readJSON=(key,fallback)=>{try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch(error){console.warn('LEXORA storage recovery:',key,error);return fallback}};
+window.addEventListener('error',event=>{console.error('LEXORA runtime error:',event.error||event.message);});
 const games=[
 {id:'vocab',icon:'🧠',title:'صيد المفردات',desc:'اختر معنى الكلمة الإنجليزية الصحيح وطوّر حصيلتك.',level:'beginner',tag:'مبتدئ',type:'quiz'},
 {id:'spell',icon:'🔤',title:'رتّب الحروف',desc:'كوّن الكلمة الصحيحة من الحروف المتناثرة.',level:'beginner',tag:'مبتدئ',type:'spell'},
@@ -88,10 +90,10 @@ function sentenceRound(g){let qs=[['I drink water every day.','I drink water eve
 const skillNames={vocabulary:'المفردات',grammar:'القواعد',listening:'الاستماع',reading:'القراءة',conversation:'المحادثة'};
 let coins=Number(localStorage.getItem('lexora_coins')||0);
 let islandLevel=Number(localStorage.getItem('lexora_island')||1);
-let pet=JSON.parse(localStorage.getItem('lexora_pet')||'{"emoji":"🦉","name":"البومة الذكية"}');
+let pet=readJSON('lexora_pet',{emoji:'🦉',name:'البومة الذكية'});
 let decor=Number(localStorage.getItem('lexora_decor')||0);
-let cardLevels=JSON.parse(localStorage.getItem('lexora_cards')||'{"apple":1,"quiet":1,"journey":1}');
-let skillScores=JSON.parse(localStorage.getItem('lexora_skills')||'{"vocabulary":0,"grammar":0,"listening":0,"reading":0,"conversation":0}');
+let cardLevels=readJSON('lexora_cards',{apple:1,quiet:1,journey:1});
+let skillScores=readJSON('lexora_skills',{vocabulary:0,grammar:0,listening:0,reading:0,conversation:0});
 function persistExtra(){localStorage.setItem('lexora_coins',coins);localStorage.setItem('lexora_island',islandLevel);localStorage.setItem('lexora_pet',JSON.stringify(pet));localStorage.setItem('lexora_decor',decor);localStorage.setItem('lexora_cards',JSON.stringify(cardLevels));localStorage.setItem('lexora_skills',JSON.stringify(skillScores));}
 function renderExtra(){
  if(!$('mistakeReview')){document.querySelector('.featuregrid').insertAdjacentHTML('beforeend','<article class="featurecard"><h3>📝 دفتر الأخطاء</h3><p>راجع الأسئلة التي أخطأت فيها لتثبيت المعلومة.</p><div class="featureactions"><button class="smallbtn primarysmall" id="mistakeReview">مراجعة أخطائي ('+lexoraMistakes.length+')</button></div></article>');$('mistakeReview').onclick=()=>{if(!lexoraMistakes.length){open('دفتر الأخطاء','<p class="question">ممتاز! لا توجد أخطاء محفوظة حالياً.</p>');return}let items=lexoraMistakes.slice(0,20);open('مراجعة الأخطاء','<p class="question">آخر الأسئلة التي تحتاج إلى مراجعتها:</p>'+items.map((m,i)=>'<div class="featurecard" style="margin:8px 0;padding:12px"><b>'+(i+1)+'. '+m.prompt+'</b><p>'+m.display+'</p><p style="color:#16845f">الإجابة: '+m.answer+'</p></div>').join('')+'<div class="actions"><button class="primary" id="clearMistakes">مسح سجل الأخطاء</button><button class="secondary" id="closeMistakes">إغلاق</button></div>');$('clearMistakes').onclick=()=>{lexoraMistakes.length=0;localStorage.setItem('lexora_mistakes','[]');close();renderExtra()};$('closeMistakes').onclick=close;};}
@@ -125,9 +127,9 @@ const lexoraWords=[
 ['early','مبكر'],['late','متأخر'],['always','دائماً'],['never','أبداً'],['sometimes','أحياناً'],['usually','عادةً'],['quickly','بسرعة'],['slowly','ببطء'],['together','معاً'],['already','بالفعل'],
 ['important','مهم'],['different','مختلف'],['possible','ممكن'],['difficult','صعب'],['simple','بسيط'],['special','مميز'],['popular','شائع'],['famous','مشهور'],['expensive','غالي'],['comfortable','مريح']
 ];
-const lexoraMistakes=JSON.parse(localStorage.getItem('lexora_mistakes')||'[]');
-const lexoraProgress=JSON.parse(localStorage.getItem('lexora_progress_v2')||'{}');
-let gameMode='practice',stageIndex=0,heartState=JSON.parse(localStorage.getItem('lexora_hearts')||'{"count":5,"at":Date.now()}');
+const lexoraMistakes=readJSON('lexora_mistakes',[]);
+const lexoraProgress=readJSON('lexora_progress_v2',{});
+let gameMode='practice',stageIndex=0,heartState=readJSON('lexora_hearts',{count:5,at:Date.now()});
 function saveProgress(){localStorage.setItem('lexora_progress_v2',JSON.stringify(lexoraProgress));}
 function gameProgress(id){return lexoraProgress[id]||(lexoraProgress[id]={unlocked:1,stages:{},resume:0,best:0,played:0});}
 function hearts(){let now=Date.now(),elapsed=Math.floor((now-(heartState.at||now))/1800000);if(elapsed>0){heartState.count=Math.min(5,(heartState.count||0)+elapsed);heartState.at=heartState.count===5?now:(heartState.at||now)+elapsed*1800000;localStorage.setItem('lexora_hearts',JSON.stringify(heartState));}return heartState.count;}
