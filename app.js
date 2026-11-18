@@ -988,6 +988,117 @@ loadCourseCatalog();
  make('What is the best summary of this journey?','التواصل وحل المشكلات في مدينة حديثة','','ما أفضل تلخيص للمغامرة؟','القصة تختبر اللغة في مواقف السفر والتقنية والتواصل.',['زيارة حديقة فقط','التواصل وحل المشكلات في مدينة حديثة','تعلم أسماء الحيوانات'],'Reading')
  ]}
  ];
+ const extraEpisodes=[
+ {title:'المتحف الغامض',label:'المغامرة 04 · THE MYSTERY MUSEUM',prop:'🏛️',caption:'THE MYSTERY MUSEUM',voice:'Mia and Max discover a secret message inside an old museum.',scene:'museum',questions:[
+ make('The museum ___ at nine.','opens','.','يفتح المتحف الساعة التاسعة.','المضارع البسيط للمواعيد.',['open','opens','opening'],'Grammar'),
+ make('Please ___ your ticket.','show','','أظهر تذكرتك من فضلك.','فعل أمر بصيغته الأساسية.',['shows','show','showing'],'Vocabulary'),
+ make('The guide is ___ the entrance.','at','.','المرشد عند المدخل.','at لتحديد نقطة أو موقع.',['in','at','on'],'Grammar'),
+ make('Visitors must not ___ the paintings.','touch','.','يجب ألا يلمس الزوار اللوحات.','بعد must not يأتي الفعل الأساسي.',['touches','touch','touching'],'Grammar'),
+ make('A person who explains a museum is a ___.','guide','','الشخص الذي يشرح في المتحف هو مرشد.','guide تعني مرشد.',['pilot','guide','chef'],'Vocabulary'),
+ make('“Follow me, please.” means:','اتبعني من فضلك','','ما معنى Follow me؟','تعني اتبعني.',['انتظرني','اتبعني','اتركني'],'Listening'),
+ make('There ___ an ancient statue here.','is','.','يوجد تمثال قديم هنا.','statue مفرد؛ نستخدم there is.',['are','is','be'],'Grammar'),
+ make('This painting is older ___ that one.','than','.','هذه اللوحة أقدم من تلك.','than أداة مقارنة.',['then','that','than'],'Grammar'),
+ make('The opposite of ancient is ___.','modern','.','عكس ancient هو modern.','modern تعني حديث.',['modern','quiet','empty'],'Vocabulary'),
+ make('We have ___ the hidden symbol.','found','.','لقد وجدنا الرمز المخفي.','have + التصريف الثالث found.',['find','finding','found'],'Grammar'),
+ make('Could you help me, ___?','please','','هل يمكنك مساعدتي من فضلك؟','please تجعل الطلب مهذباً.',['please','never','yesterday'],'Grammar'),
+ make('What is the mission about?','Finding a hidden symbol','','ما هدف المهمة؟','البحث عن الرمز المخفي.',['Buying a car','Finding a hidden symbol','Cooking dinner'],'Reading')
+ ]},
+ {title:'محطة القطار',label:'المغامرة 05 · THE TRAIN STATION',prop:'🚆',caption:'THE TRAIN STATION',voice:'The friends arrive at a busy station and must find their train.',scene:'station',questions:[
+ make('What time ___ the train leave?','does','','في أي وقت يغادر القطار؟','مع train المفرد نستخدم does.',['do','does','is'],'Grammar'),
+ make('The train is on platform ___.','three','','القطار على الرصيف الثالث.','three تعني ثلاثة.',['third','three','thirteen'],'Vocabulary'),
+ make('We should arrive ___ the station early.','at','.','ينبغي أن نصل إلى المحطة مبكراً.','arrive at مع الأماكن المحددة.',['on','at','to'],'Grammar'),
+ make('Delayed means ___.','متأخر','','ما معنى delayed؟','تعني متأخر.',['ممتلئ','متأخر','سريع'],'Vocabulary'),
+ make('The passengers ___ waiting.','are','.','الركاب ينتظرون.','passengers جمع؛ are.',['is','are','am'],'Grammar'),
+ make('Where can you buy a ticket?','At the ticket office','','أين تشتري التذكرة؟','من مكتب التذاكر.',['At the ticket office','At the hospital','At the library'],'Reading'),
+ make('Please keep your bag ___ you.','with','.','احتفظ بحقيبتك معك.','with تعني مع.',['between','with','from'],'Vocabulary'),
+ make('I missed the train because I ___ late.','was','.','فاتني القطار لأنني كنت متأخراً.','الماضي من am/is هو was.',['were','was','am'],'Grammar'),
+ make('The next train leaves in twenty ___.','minutes','','يغادر القطار بعد عشرين دقيقة.','minutes جمع minute.',['minute','minutes','minuting'],'Vocabulary'),
+ make('Mind the gap means:','انتبه إلى الفراغ بين القطار والمنصة','','ما معنى Mind the gap؟','تحذير من المسافة بين الرصيف والقطار.',['انتبه إلى الفراغ بين القطار والمنصة','أغلق النافذة','أسرع'],'Listening'),
+ make('The train is faster ___ the bus.','than','.','القطار أسرع من الحافلة.','than للمقارنة.',['then','than','that'],'Grammar'),
+ make('What should they check first?','The departure screen','','ماذا يجب أن يتحققا منه أولاً؟','شاشة المغادرة تعرض الرصيف والوقت.',['The departure screen','A restaurant menu','A weather map'],'Reading')
+ ]},
+ {title:'يوم على الشاطئ',label:'المغامرة 06 · BEACH DAY',prop:'🏖️',caption:'BEACH DAY',voice:'Mia and Max enjoy a sunny beach day and learn important safety words.',scene:'beach',questions:[
+ make('The sun ___ brightly today.','is shining','.','الشمس تشرق بقوة اليوم.','المضارع المستمر is + ing.',['shine','is shining','shines'],'Grammar'),
+ make('Wear ___ to protect your eyes.','sunglasses','','ارتدِ نظارة شمسية لحماية عينيك.','sunglasses نظارة شمسية.',['gloves','sunglasses','boots'],'Vocabulary'),
+ make('The water is too cold ___ swim.','to','.','الماء بارد جداً للسباحة.','too + adjective + to.',['for','to','at'],'Grammar'),
+ make('We ___ a sandcastle yesterday.','built','.','بنينا قلعة رملية أمس.','built ماضي build.',['build','built','building'],'Grammar'),
+ make('A lifeguard keeps swimmers ___.','safe','','المنقذ يبقي السباحين آمنين.','safe تعني آمن.',['sleepy','safe','thirsty'],'Vocabulary'),
+ make('Stay between the flags means:','ابقَ بين الأعلام','','ما معنى Stay between the flags؟','تعليمات لتحديد منطقة السباحة الآمنة.',['ابتعد عن الشاطئ','ابقَ بين الأعلام','اجمع الأعلام'],'Listening'),
+ make('There isn’t ___ milk.','any','','لا يوجد أي حليب.','any تستخدم في النفي.',['some','many','any'],'Grammar'),
+ make('A wave is moving ___.','water','','الموجة ماء متحرك.','wave تعني موجة.',['sand','water','stone'],'Vocabulary'),
+ make('Max feels thirsty. He needs ___.','some water','','ما الذي يحتاجه ماكس عندما يعطش؟','الماء يروي العطش.',['some water','a blanket','a book'],'Listening'),
+ make('We have been here ___ two hours.','for','','نحن هنا منذ ساعتين.','for مع مدة زمنية.',['since','for','during'],'Grammar'),
+ make('Don’t leave rubbish on the ___.','sand','','لا تترك النفايات على الرمال.','sand تعني الرمل.',['cloud','sand','sky'],'Vocabulary'),
+ make('What is safest during a storm?','Leave the water','','ما الخيار الأكثر أماناً أثناء العاصفة؟','يجب الخروج من الماء.',['Keep swimming','Leave the water','Stand under a tree'],'Reading')
+ ]},
+ {title:'مدينة المستقبل',label:'المغامرة 07 · CITY OF TOMORROW',prop:'🌆',caption:'CITY OF TOMORROW',voice:'The friends explore a smart city with robots and clean energy.',scene:'future',questions:[
+ make('People ___ electric buses here.','use','.','يستخدم الناس الحافلات الكهربائية هنا.','people جمع؛ use.',['uses','use','using'],'Grammar'),
+ make('Solar panels produce ___.','electricity','','الألواح الشمسية تنتج الكهرباء.','electricity تعني الكهرباء.',['plastic','electricity','smoke'],'Vocabulary'),
+ make('The robot can ___ four languages.','speak','','يستطيع الروبوت التحدث بأربع لغات.','بعد can يأتي الفعل الأساسي.',['speaks','speaking','speak'],'Grammar'),
+ make('This is the ___ building.','tallest','.','هذا أطول مبنى.','صيغة التفضيل the tallest.',['taller','tallest','tall'],'Grammar'),
+ make('Renewable energy is energy that…','يمكن تجديدها طبيعياً','','ما معنى renewable energy؟','طاقة تتجدد طبيعياً مثل الشمس والرياح.',['تنفد بسرعة','يمكن تجديدها طبيعياً','تسبب الضوضاء'],'Vocabulary'),
+ make('Please scan your card means:','امسح بطاقتك إلكترونياً','','ما معنى scan your card؟','مرر البطاقة على الماسح.',['مزق البطاقة','امسح بطاقتك إلكترونياً','أخفِ البطاقة'],'Listening'),
+ make('If we use less plastic, we ___ the planet.','will help','','إذا استخدمنا بلاستيكاً أقل سنساعد الكوكب.','الشرط الأول: will + verb.',['helped','will help','helping'],'Grammar'),
+ make('The streets are ___ because cars are electric.','quieter','.','الشوارع أكثر هدوءاً لأن السيارات كهربائية.','quieter مقارنة من quiet.',['quietest','quieter','quietly'],'Grammar'),
+ make('A screen displays ___.','information','','الشاشة تعرض المعلومات.','information تعني معلومات.',['information','sand','rain'],'Vocabulary'),
+ make('The engineers ___ a robot last year.','designed','.','صمم المهندسون روبوتاً العام الماضي.','last year يدل على الماضي.',['design','designed','designing'],'Grammar'),
+ make('Efficient means working well without wasting ___.','energy','','ما معنى efficient؟','إنجاز العمل دون هدر الطاقة أو الوقت.',['energy','stories','colors'],'Vocabulary'),
+ make('What is the main idea?','Technology can make cities cleaner','','ما الفكرة الرئيسية؟','التقنية والطاقة النظيفة تساعد المدن.',['Technology can make cities cleaner','Robots stop learning','Cars use more fuel'],'Reading')
+ ]},
+ {title:'مغامرة الغابة',label:'المغامرة 08 · THE FOREST TRAIL',prop:'🌲',caption:'THE FOREST TRAIL',voice:'A forest guide helps the friends find a lost bird.',scene:'forest',questions:[
+ make('Birds ___ in trees.','live','.','تعيش الطيور في الأشجار.','حقيقة عامة بالمضارع البسيط.',['lives','live','living'],'Grammar'),
+ make('The path is ___ than it looks.','narrower','.','المسار أضيق مما يبدو.','narrower مقارنة من narrow.',['narrowest','narrower','narrow'],'Grammar'),
+ make('We must ___ quiet near wild animals.','stay','','يجب أن نبقى هادئين قرب الحيوانات البرية.','stay quiet تعني ابق هادئاً.',['stays','staying','stay'],'Vocabulary'),
+ make('A person who studies animals is a ___.','biologist','','من يدرس الحيوانات عالم أحياء.','biologist عالم أحياء.',['biologist','cashier','baker'],'Vocabulary'),
+ make('They ___ the bird yesterday.','saw','.','رأوا الطائر أمس.','saw ماضي see.',['see','seen','saw'],'Grammar'),
+ make('The ground is slippery means:','الأرض زلقة','','ما معنى slippery؟','slippery تعني زلق.',['الأرض جافة','الأرض زلقة','الطريق واسع'],'Listening'),
+ make('There are ___ trees here.','many','','هناك أشجار كثيرة هنا.','many مع المعدود الجمع.',['much','many','any'],'Grammar'),
+ make('A nest is a bird’s ___.','home','','العش هو منزل الطائر.','nest تعني عش.',['food','home','wing'],'Vocabulary'),
+ make('The bird cannot fly because its wing is ___.','hurt','','لا يستطيع الطائر الطيران لأن جناحه مصاب.','hurt تعني مصاب.',['hungry','hurt','bright'],'Listening'),
+ make('We protect forests ___ they are important.','because','','نحمي الغابات لأنها مهمة.','because تقدم السبب.',['although','because','unless'],'Grammar'),
+ make('The opposite of dangerous is ___.','safe','','عكس خطير هو آمن.','safe تعني آمن.',['wild','safe','deep'],'Vocabulary'),
+ make('What should hikers take?','Water and a map','','ماذا يأخذ المتنزهون؟','الماء والخريطة من أساسيات الرحلة.',['A television','Water and a map','A sofa'],'Reading')
+ ]},
+ {title:'المطعم العالمي',label:'المغامرة 09 · WORLD KITCHEN',prop:'🍽️',caption:'WORLD KITCHEN',voice:'The friends order food and practise polite English in a restaurant.',scene:'restaurant',questions:[
+ make('I would like ___ orange juice, please.','some','','أريد بعض عصير البرتقال من فضلك.','some في الطلبات المهذبة.',['any','some','many'],'Grammar'),
+ make('Could we see the ___, please?','menu','','هل يمكننا رؤية قائمة الطعام؟','menu قائمة الطعام.',['menu','bill','kitchen'],'Vocabulary'),
+ make('This soup tastes ___.','delicious','.','طعم الحساء لذيذ.','delicious صفة.',['delicious','deliciously','delight'],'Grammar'),
+ make('The waiter ___ our order.','took','.','أخذ النادل طلبنا.','took ماضي take.',['take','taken','took'],'Grammar'),
+ make('I am allergic ___ peanuts.','to','.','لدي حساسية من الفول السوداني.','allergic to هو التركيب الصحيح.',['with','to','for'],'Grammar'),
+ make('Would you like anything else means:','هل ترغب في شيء آخر؟','','ماذا يعني سؤال النادل؟','يسأل إن كان الزبون يريد المزيد.',['هل دفعت؟','هل ترغب في شيء آخر؟','أين تسكن؟'],'Listening'),
+ make('We need two ___ of water.','glasses','','نحتاج إلى كأسين من الماء.','جمع glass هو glasses.',['glass','glasses','glassies'],'Vocabulary'),
+ make('The bill is ___ expensive.','too','','الفاتورة غالية جداً.','too تعني أكثر من اللازم.',['enough','too','many'],'Grammar'),
+ make('Could you bring the bill, ___?','please','','هل يمكنك إحضار الفاتورة من فضلك؟','please للتهذيب.',['please','never','yesterday'],'Vocabulary'),
+ make('A meal without meat is ___.','vegetarian','','وجبة بلا لحم تسمى نباتية.','vegetarian تعني نباتي.',['spicy','vegetarian','frozen'],'Vocabulary'),
+ make('If the food is too spicy, ask for ___.','water','','إذا كان الطعام حاراً اطلب الماء.','الماء يساعد على تخفيف الإحساس بالحرارة.',['water','pepper','salt'],'Listening'),
+ make('The restaurant was busy, ___ service was quick.','but','','كان المطعم مزدحماً لكن الخدمة سريعة.','but للتعارض.',['because','but','so'],'Grammar')
+ ]},
+ {title:'المطار الدولي',label:'المغامرة 10 · AIRPORT ADVENTURE',prop:'✈️',caption:'AIRPORT ADVENTURE',voice:'The friends are flying abroad and must find their departure gate.',scene:'airport',questions:[
+ make('Our flight ___ at 6:30 tomorrow.','departs','.','تغادر رحلتنا غداً الساعة السادسة والنصف.','المواعيد المجدولة بالمضارع البسيط.',['depart','departs','departing'],'Grammar'),
+ make('You need your passport at the ___.','check-in desk','','تحتاج جوازك عند مكتب تسجيل الوصول.','check-in desk مكتب إنهاء إجراءات السفر.',['pool','check-in desk','bookshop'],'Vocabulary'),
+ make('The opposite of arrival is ___.','departure','','عكس الوصول هو المغادرة.','departure تعني المغادرة.',['journey','departure','passenger'],'Vocabulary'),
+ make('We ___ our passports before leaving.','checked','.','تحققنا من جوازاتنا قبل المغادرة.','checked ماضي check.',['check','checking','checked'],'Grammar'),
+ make('Boarding starts in ten minutes means:','يبدأ صعود الركاب بعد عشر دقائق','','ما معنى الإعلان؟','boarding صعود الركاب للطائرة.',['تصل الطائرة','يبدأ صعود الركاب بعد عشر دقائق','يغلق المطار'],'Listening'),
+ make('The gate number is displayed ___ the screen.','on','.','رقم البوابة معروض على الشاشة.','on مع ما يظهر على الشاشة.',['at','on','in'],'Grammar'),
+ make('Keep your seat belt ___.','fastened','','أبقِ حزام المقعد مربوطاً.','fastened تعني مربوط.',['fastened','opened','lost'],'Vocabulary'),
+ make('The plane was delayed ___ bad weather.','because of','','تأخرت الطائرة بسبب الطقس السيئ.','because of يتبعها اسم.',['because','because of','although'],'Grammar'),
+ make('A person travelling on a plane is a ___.','passenger','','المسافر على الطائرة passenger.','passenger تعني راكب.',['driver','passenger','mechanic'],'Vocabulary'),
+ make('If you cannot find your gate, ask a staff ___.','member','','إذا لم تجد البوابة اسأل أحد الموظفين.','staff member فرد من الموظفين.',['member','members','membership'],'Vocabulary'),
+ make('By the time we arrived, boarding ___.','had started','','عندما وصلنا كان الصعود قد بدأ.','الماضي التام لحدث سبق حدثاً ماضياً.',['starts','has started','had started'],'Grammar'),
+ make('Which document shows your seat details?','Boarding pass','','أي وثيقة تعرض تفاصيل مقعدك؟','بطاقة صعود الطائرة boarding pass.',['Library card','Boarding pass','Shopping receipt'],'Reading')
+ ]}
+ ];
+ episodes.push(...extraEpisodes);
+ const path=document.querySelector('.episode-path');
+ if(path) extraEpisodes.forEach((ep,index)=>{
+  const card=document.createElement('button');card.type='button';card.className='episode-card unlocked';card.dataset.episode=String(index+3);
+  const art=document.createElement('span');art.className='episode-art art-extra';const icon=document.createElement('b');icon.textContent=ep.prop;art.append(icon);
+  const num=document.createElement('span');num.className='episode-number';num.textContent='الحلقة '+String(index+4).padStart(2,'0');
+  const name=document.createElement('strong');name.textContent=ep.title;
+  const desc=document.createElement('small');desc.textContent=ep.questions.length+' تحدياً · '+ep.caption;
+  const reward=document.createElement('span');reward.className='episode-reward';reward.textContent='⭐ +96 XP';
+  card.append(art,num,name,desc,reward);path.append(card);
+ });
  let epIndex=0,qIndex=0,xp=0,hearts=5,correct=0,answered=false,completed=0,voiceEnabled=true;
  const completedSet=new Set();
  const voices=()=>window.speechSynthesis?.getVoices?.()||[];
@@ -1056,9 +1167,9 @@ loadCourseCatalog();
  document.querySelectorAll('.episode-card').forEach(c=>c.addEventListener('click',()=>start(Number(c.dataset.episode))));
  $('startAdventure').addEventListener('click',()=>start(0));
  const toolbar=document.createElement('div');toolbar.className='story-audio-tools';
- const audio=document.createElement('button');audio.type='button';audio.textContent='🔊 إعادة سماع الحوار';audio.onclick=()=>speak($('sceneSpeech').textContent,true);
+ const audio=document.createElement('button');audio.type='button';audio.className='story-audio-play';audio.textContent='▶ استمع إلى الحوار الإنجليزي';audio.setAttribute('aria-label','تشغيل الحوار الإنجليزي');audio.onclick=()=>{voiceEnabled=true;speak($('sceneSpeech').textContent,true);audio.textContent='↻ إعادة الاستماع';};
  const mute=document.createElement('button');mute.type='button';mute.textContent='🔇 إيقاف الصوت';mute.onclick=()=>{voiceEnabled=false;speechSynthesis?.cancel?.();};
- const unmute=document.createElement('button');unmute.type='button';unmute.textContent='🎙️ تشغيل الصوت';unmute.onclick=()=>{voiceEnabled=true;speak($('sceneSpeech').textContent);};
+ const unmute=document.createElement('button');unmute.type='button';unmute.textContent='🎙️ تفعيل صوت الشخصيات';unmute.onclick=()=>{voiceEnabled=true;speak($('sceneSpeech').textContent);};
  toolbar.append(audio,mute,unmute);$('cartoonScene').after(toolbar);
  stats();
 })();
