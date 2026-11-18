@@ -282,3 +282,14 @@ body{background:#f4f7ff;color:#18233b}
 @keyframes coverFloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
 .answer-feedback small{display:block;margin-top:8px}
 @media(max-width:760px){.episode-art{height:120px}.episode-card{min-height:140px}.story-audio-tools button{flex:1 1 30%;font-size:11px}}
+
+/* Expanded LEXORA story world + clear user-initiated audio controls */
+.episode-art.art-extra{display:grid;place-items:center;background:radial-gradient(circle at 70% 20%,#ffffff55,transparent 28%),linear-gradient(135deg,#294b69,#15233c 60%,#75e5c044);position:relative;overflow:hidden}
+.episode-art.art-extra:before,.episode-art.art-extra:after{content:"";position:absolute;border-radius:50%;border:1px solid #ffffff38;animation:coverFloat 4s ease-in-out infinite}
+.episode-art.art-extra:before{width:150px;height:150px;right:-32px;top:-65px}
+.episode-art.art-extra:after{width:95px;height:95px;left:-22px;bottom:-48px;animation-delay:-1.4s}
+.episode-art.art-extra b{font-size:58px;z-index:1;filter:drop-shadow(0 12px 12px #0006);animation:coverFloat 2.8s ease-in-out infinite}
+.story-audio-tools{background:#142642;border:1px solid #75e5c044;border-radius:14px;margin:12px auto 18px;max-width:720px}
+.story-audio-tools button.story-audio-play{background:#75e5c0;color:#10233a;border-color:#75e5c0;font-weight:900}
+.story-audio-tools button:focus-visible{outline:3px solid #75e5c0;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.episode-art.art-extra:before,.episode-art.art-extra:after,.episode-art.art-extra b{animation:none}}
