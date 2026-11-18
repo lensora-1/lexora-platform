@@ -1174,7 +1174,7 @@ loadCourseCatalog();
  stats();
 })();
 
-// LEXORA practical curriculum: two foundational sections, 50 original challenges each.
+// LEXORA practical curriculum: each unit opens its own challenge list.
 (() => {
  const root=document.getElementById('curriculum'); if(!root || root.dataset.ready) return; root.dataset.ready='1';
  const bank={daily: [{"unit":"Greetings & Introductions","q":["Hello! How ___ you?","are","مرحباً! كيف حالك؟","is","am"]},{"unit":"Greetings & Introductions","q":["My name ___ Sara.","is","اسمي سارة.","are","am"]},{"unit":"Greetings & Introductions","q":["I ___ from Jordan.","am","أنا من الأردن.","is","are"]},{"unit":"Greetings & Introductions","q":["What is your ___?","name","ما اسمك؟","age","home"]},{"unit":"Greetings & Introductions","q":["Nice to ___ you.","meet","سعيد بلقائك.","see","say"]},{"unit":"Greetings & Introductions","q":["This is my ___, Omar.","friend","هذا صديقي عمر.","food","street"]},{"unit":"Greetings & Introductions","q":["Good ___! See you tomorrow.","night","تصبح على خير! أراك غداً.","morning","afternoon"]},{"unit":"Greetings & Introductions","q":["How old ___ you?","are","كم عمرك؟","is","am"]},{"unit":"Greetings & Introductions","q":["I live ___ Amman.","in","أعيش في عمّان.","on","at"]},{"unit":"Greetings & Introductions","q":["Where do you ___?","work","أين تعمل؟","works","working"]},{"unit":"Family & Friends","q":["My mother's brother is my ___.","uncle","أخو أمي هو خالي.","cousin","nephew"]},{"unit":"Family & Friends","q":["My parents ___ at home.","are","والداي في المنزل.","is","am"]},{"unit":"Family & Friends","q":["I have two ___.","sisters","لدي أختان.","sister","sisteres"]},{"unit":"Family & Friends","q":["She is my best ___.","friend","هي صديقتي المفضلة.","family","neighbor"]},{"unit":"Family & Friends","q":["We ___ together every Friday.","meet","نلتقي معاً كل جمعة.","meets","meeting"]},{"unit":"Family & Friends","q":["He is married ___ Lina.","to","هو متزوج من لينا.","with","at"]},{"unit":"Family & Friends","q":["My brother is ___ than me.","younger","أخي أصغر مني.","young","youngest"]},{"unit":"Family & Friends","q":["They ___ very kind.","are","إنهم لطفاء جداً.","is","be"]},{"unit":"Family & Friends","q":["I visit my grandparents ___ the weekend.","at","أزور جدي وجدتي في عطلة نهاية الأسبوع.","in","on"]},{"unit":"Family & Friends","q":["A person who lives next door is a ___.","neighbor","الشخص الذي يسكن بجوارك هو جار.","stranger","waiter"]},{"unit":"Daily Routine & Home","q":["I ___ up at seven.","wake","أستيقظ الساعة السابعة.","wakes","waking"]},{"unit":"Daily Routine & Home","q":["I brush my ___ every morning.","teeth","أنظف أسناني كل صباح.","hair","hands"]},{"unit":"Daily Routine & Home","q":["She ___ breakfast at eight.","has","تتناول الفطور الساعة الثامنة.","have","having"]},{"unit":"Daily Routine & Home","q":["I take a ___ before work.","shower","أستحم قبل العمل.","sleep","break"]},{"unit":"Daily Routine & Home","q":["The bedroom is ___ the bathroom.","next to","غرفة النوم بجانب الحمام.","between","under"]},{"unit":"Daily Routine & Home","q":["Please open the ___.","window","من فضلك افتح النافذة.","pillow","carpet"]},{"unit":"Daily Routine & Home","q":["The keys are ___ the table.","on","المفاتيح على الطاولة.","at","between"]},{"unit":"Daily Routine & Home","q":["We ___ the house every Saturday.","clean","ننظف المنزل كل سبت.","cleans","cleaning"]},{"unit":"Daily Routine & Home","q":["I go to bed ___ night.","at","أذهب إلى السرير ليلاً.","in","on"]},{"unit":"Daily Routine & Home","q":["The opposite of 'early' is ___.","late","عكس مبكر هو متأخر.","fast","slowly"]},{"unit":"Food, Drinks & Restaurants","q":["I eat ___ for breakfast.","eggs","آكل البيض على الفطور.","water","breaded"]},{"unit":"Food, Drinks & Restaurants","q":["Would you like a cup ___ tea?","of","هل ترغب بكوب من الشاي؟","for","at"]},{"unit":"Food, Drinks & Restaurants","q":["I am thirsty. I need some ___.","water","أنا عطشان، أحتاج إلى الماء.","rice","bread"]},{"unit":"Food, Drinks & Restaurants","q":["An apple is a ___.","fruit","التفاحة فاكهة.","vegetable","drink"]},{"unit":"Food, Drinks & Restaurants","q":["Could I see the ___, please?","menu","هل يمكنني رؤية قائمة الطعام؟","bill","kitchen"]},{"unit":"Food, Drinks & Restaurants","q":["I'd like to ___ a sandwich.","order","أود طلب شطيرة.","orders","ordering"]},{"unit":"Food, Drinks & Restaurants","q":["The food is too ___.","spicy","الطعام حار جداً.","sweetly","salt"]},{"unit":"Food, Drinks & Restaurants","q":["Can we have the ___, please?","bill","هل يمكننا الحصول على الفاتورة؟","menu","table"]},{"unit":"Food, Drinks & Restaurants","q":["I don't eat meat. I'm a ___.","vegetarian","لا آكل اللحوم، أنا نباتي.","waiter","customer"]},{"unit":"Food, Drinks & Restaurants","q":["Orange juice is a ___.","drink","عصير البرتقال مشروب.","meal","fruitful"]},{"unit":"Shopping, Clothes & Transport","q":["How much ___ this shirt?","is","بكم هذا القميص؟","are","does"]},{"unit":"Shopping, Clothes & Transport","q":["I need a larger ___.","size","أحتاج إلى مقاس أكبر.","price","colorful"]},{"unit":"Shopping, Clothes & Transport","q":["You can pay ___ cash.","in","يمكنك الدفع نقداً.","on","at"]},{"unit":"Shopping, Clothes & Transport","q":["These shoes are too ___.","expensive","هذا الحذاء غالي جداً.","hungry","thirsty"]},{"unit":"Shopping, Clothes & Transport","q":["I usually go to work ___ bus.","by","أذهب إلى العمل بالحافلة عادةً.","on","with"]},{"unit":"Shopping, Clothes & Transport","q":["Please fasten your seat ___.","belt","يرجى ربط حزام المقعد.","back","door"]},{"unit":"Shopping, Clothes & Transport","q":["The car is ___ the garage.","in","السيارة داخل المرآب.","on","between"]},{"unit":"Shopping, Clothes & Transport","q":["We need to buy some ___.","groceries","نحتاج إلى شراء بعض مواد البقالة.","furniture","traffic"]},{"unit":"Shopping, Clothes & Transport","q":["My phone battery is ___.","low","بطارية هاتفي منخفضة.","tall","wide"]},{"unit":"Shopping, Clothes & Transport","q":["Can you ___ me the way?","show","هل يمكنك أن تريني الطريق؟","shows","showing"]}],
@@ -1188,4 +1188,49 @@ street: [{"unit":"Street Names & Places","q":["A road in a city with buildings i
  root.querySelectorAll('.curriculum-start').forEach(b=>b.addEventListener('click',()=>start(b.dataset.curriculum)));
  $('curriculumNext').addEventListener('click',()=>{if($('curriculumNext').textContent==='إعادة القسم'){start(active);return;}if(index<order.length-1){index++;showQuestion();}else finish();});
  $('curriculumBack').addEventListener('click',()=>{if('speechSynthesis'in window)speechSynthesis.cancel();$('curriculumPlayer').hidden=true;root.querySelector('.curriculum-cards').hidden=false;});
-})();
+})();;
+ const icons=['👋','👨‍👩‍👧','🏠','🍽️','🛍️','📍','🚦','🚶','🚌','🚘'];
+ const colors=['#35c5a0','#f0a65b','#78a9f5','#f18b75','#c69af4','#75b8d9','#f0bd55','#66c79b','#7ca6e8','#e58c9b'];
+ const units=root.querySelector('#curriculumUnits');
+ let active='daily',index=0,score=0,order=[],answered=false;
+ const groups=[['daily','الحياة اليومية','☀️'],['street','الشارع والمواصلات','🚦']];
+ groups.forEach(([key,label,icon])=>{
+   const group=document.createElement('section');group.className='curriculum-unit-group';
+   const heading=document.createElement('div');heading.className='curriculum-group-heading';
+   const title=document.createElement('h3');title.textContent=label;
+   const mark=document.createElement('span');mark.textContent=icon;mark.className='curriculum-group-mark';
+   heading.append(mark,title);group.append(heading);
+   const grid=document.createElement('div');grid.className='curriculum-unit-grid';
+   const names=[...new Set(bank[key].map(item=>item.unit))];
+   names.forEach((name,i)=>{
+     const card=document.createElement('button');card.type='button';card.className='curriculum-unit-card';
+     const iconBox=document.createElement('span');iconBox.className='curriculum-unit-icon';iconBox.style.setProperty('--unit-accent',colors[key==='daily'?i:i+5]);iconBox.textContent=icons[key==='daily'?i:i+5];
+     const copy=document.createElement('span');copy.className='curriculum-unit-copy';
+     const heading=document.createElement('strong');heading.textContent=name;
+     const meta=document.createElement('small');meta.textContent='10 تحديات · المستوى A1';
+     const arrow=document.createElement('span');arrow.className='curriculum-unit-arrow';arrow.textContent='←';
+     copy.append(heading,meta);card.append(iconBox,copy,arrow);
+     card.addEventListener('click',()=>start(key,name));
+     grid.append(card);
+   });
+   group.append(grid);units.append(group);
+ });
+ function showQuestion(){
+   answered=false;const q=order[index].q;
+   $('curriculumUnitLabel').textContent=order[index].unit;
+   $('curriculumCount').textContent=(index+1)+' / '+order.length;
+   $('curriculumProgress').style.width=(index/order.length*100)+'%';
+   $('curriculumQuestion').textContent=q[0];
+   $('curriculumArabic').textContent=q[2];
+   $('curriculumKind').textContent='VOCABULARY';
+   $('curriculumFeedback').hidden=true;$('curriculumNext').hidden=true;
+   const choices=[q[1],q[3],q[4]].sort(()=>Math.random()-.5),box=$('curriculumOptions');box.replaceChildren();
+   choices.forEach(choice=>{const b=document.createElement('button');b.type='button';b.className='curriculum-option';b.textContent=choice;b.addEventListener('click',()=>answer(choice,b));box.append(b);});
+   if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(q[0].replace('___',q[1]));u.lang='en-US';u.rate=.88;speechSynthesis.speak(u);}
+ }
+ function answer(choice,button){if(answered)return;answered=true;const q=order[index].q,ok=choice===q[1];if(ok)score++;$('curriculumOptions').querySelectorAll('button').forEach(b=>{b.disabled=true;if(b.textContent===q[1])b.classList.add('correct');else if(b===button)b.classList.add('incorrect');});const f=$('curriculumFeedback');f.hidden=false;f.textContent=(ok?'إجابة صحيحة! أحسنت. ':'ليست الإجابة الصحيحة. ')+'الإجابة: '+q[1]+'. '+q[2];$('curriculumNext').textContent=index===order.length-1?'عرض النتيجة':'التحدي التالي ←';$('curriculumNext').hidden=false;}
+ function start(key,unit){active=key;index=0;score=0;order=bank[key].filter(item=>item.unit===unit);$('curriculumPlayer').hidden=false;units.hidden=true;showQuestion();$('curriculumPlayer').scrollIntoView({behavior:'smooth',block:'start'});}
+ function finish(){ $('curriculumQuestion').textContent='أكملت الوحدة!';$('curriculumArabic').textContent='نتيجتك: '+score+' من '+order.length+' ('+Math.round(score/order.length*100)+'%).';$('curriculumOptions').replaceChildren();$('curriculumFeedback').hidden=false;$('curriculumFeedback').textContent=score>=8?'أداء ممتاز! انتقل إلى وحدة أخرى.':'أحسنت على إكمال التدريب. أعد المحاولة لتثبيت المفردات.';$('curriculumNext').textContent='إعادة الوحدة';$('curriculumNext').hidden=false;$('curriculumProgress').style.width='100%';}
+ $('curriculumNext').addEventListener('click',()=>{if($('curriculumNext').textContent==='إعادة الوحدة'){const unit=$('curriculumUnitLabel').textContent;start(active,unit);return;}if(index<order.length-1){index++;showQuestion();}else finish();});
+ $('curriculumBack').addEventListener('click',()=>{if('speechSynthesis'in window)speechSynthesis.cancel();$('curriculumPlayer').hidden=true;units.hidden=false;units.scrollIntoView({behavior:'smooth',block:'start'});});
+})();;
