@@ -900,132 +900,165 @@ async function loadCourseCatalog() {
 loadCourseCatalog();
 
 
-// LEXORA Play World: original cartoon-style story games.
+// LEXORA STORY QUEST — long-form English assessment adventures.
 (() => {
-  const episodes = [
-    {
-      title:'أول لقاء في الحديقة', label:'الحلقة 01 · A NEW FRIEND', prop:'🌳', caption:'A NEW FRIEND',
-      lines:['Hello! Nice to meet you!','My name is Mia.','What is your name?'],
-      questions:[
-        {before:'Hello! My ',after:' is Mia.',translation:'مرحباً! اسمي ميا.',answer:'name',options:['name','book','cat'],why:'نستخدم name عندما نذكر الاسم: My name is Mia.'},
-        {before:'Hello! ',after:' are you?',translation:'مرحباً! كيف حالك؟',answer:'How',options:['How','Who','Where'],why:'السؤال How are you? يعني: كيف حالك؟'},
-        {before:'I ',after:' Alex.',translation:'أنا أليكس.',answer:'am',options:['am','is','are'],why:'مع الضمير I نستخدم am: I am Alex.'},
-        {before:'Nice to ',after:' you.',translation:'سعيد بلقائك.',answer:'meet',options:['meet','eat','sleep'],why:'العبارة الثابتة هي Nice to meet you.'},
-        {before:'Goodbye! See you ',after:'.',translation:'وداعاً! أراك لاحقاً.',answer:'later',options:['later','apple','blue'],why:'See you later تعني أراك لاحقاً.'}
-      ]
-    },
-    {
-      title:'مفاجأة في المنزل', label:'الحلقة 02 · AT HOME', prop:'🏡', caption:'A SURPRISE AT HOME',
-      lines:['Look! This is my cat.','It is very cute!','I love my little cat.'],
-      questions:[
-        {before:'This is a ',after:'.',translation:'هذه قطة.',answer:'cat',options:['cat','run','happy'],why:'cat اسم حيوان، ونستخدم a قبل الاسم المفرد الذي يبدأ بصوت ساكن.'},
-        {before:'It ',after:' small.',translation:'إنها صغيرة.',answer:'is',options:['is','am','are'],why:'مع it نستخدم is: It is small.'},
-        {before:'I ',after:' a book.',translation:'لدي كتاب.',answer:'have',options:['have','has','is'],why:'مع I نستخدم have: I have a book.'},
-        {before:'The cat is ',after:'.',translation:'القطة سعيدة.',answer:'happy',options:['happy','table','bluely'],why:'happy صفة معناها سعيد، وتصف حالة القطة.'},
-        {before:'It is ',after:' apple.',translation:'إنها تفاحة.',answer:'an',options:['an','a','are'],why:'نستخدم an قبل كلمة apple لأنها تبدأ بصوت حرف متحرك.'}
-      ]
-    },
-    {
-      title:'يوم في المقهى', label:'الحلقة 03 · AT THE CAFE', prop:'☕', caption:'AT THE CAFE',
-      lines:['Can I have a coffee, please?','Of course!','Here you are.'],
-      questions:[
-        {before:'I would like ',after:' coffee.',translation:'أود قهوة.',answer:'a',options:['a','an','are'],why:'coffee اسم مفرد يبدأ بصوت ساكن، لذلك نقول a coffee.'},
-        {before:'Can I ',after:' a tea?',translation:'هل يمكنني الحصول على شاي؟',answer:'have',options:['have','has','am'],why:'بعد Can نستخدم الفعل بصيغته الأساسية: Can I have…?'},
-        {before:'Thank ',after:'!',translation:'شكراً لك!',answer:'you',options:['you','your','yours'],why:'العبارة الصحيحة للشكر هي Thank you.'},
-        {before:'Here ',after:' are.',translation:'ها أنت ذا.',answer:'you',options:['you','is','am'],why:'Here you are عبارة شائعة عند تقديم شيء لشخص.'},
-        {before:'The coffee is ',after:'.',translation:'القهوة ساخنة.',answer:'hot',options:['hot','drink','cup'],why:'hot صفة معناها ساخن، وتصف القهوة.'}
-      ]
-    }
-  ];
-  let currentEpisode = 0, currentQuestion = 0, xp = 0, hearts = 5, correctCount = 0, answered = false;
-  const completedEpisodes = new Set();
-  const $ = id => document.getElementById(id);
-  const stage = $('cartoonStage');
-  if (!stage) return;
-  const xpEl=$('gameXp'), heartsEl=$('gameHearts'), stageHearts=$('stageHearts');
-  function syncStats(){xpEl.textContent=String(xp);heartsEl.textContent=String(hearts);stageHearts.textContent=String(hearts);}
-  function openEpisode(index){
-    currentEpisode=index;currentQuestion=0;correctCount=0;answered=false;hearts=5;
-    const ep=episodes[index];
-    $('worldMap').hidden=true;stage.hidden=false;
-    $('stageEpisodeLabel').textContent=ep.label;
-    $('sceneProp').textContent=ep.prop;$('sceneCaption').textContent=ep.caption;
-    $('sceneSpeech').textContent=ep.lines[0];
-    $('sceneCharacterA').className='scene-character scene-character-a character-bounce';
-    $('sceneCharacterB').className='scene-character scene-character-b character-bounce';
-    renderQuestion();
-    stage.scrollIntoView({behavior:'smooth',block:'start'});
-  }
-  function renderQuestion(){
-    const ep=episodes[currentEpisode], q=ep.questions[currentQuestion];
-    answered=false;
-    $('questionCounter').textContent='السؤال '+(currentQuestion+1)+' من '+ep.questions.length;
-    $('questionProgress').style.width=(currentQuestion/ep.questions.length*100)+'%';
-    $('sentencePrompt').innerHTML='';
-    $('sentencePrompt').append(document.createTextNode(q.before));
-    const blank=document.createElement('b');blank.textContent=' _____ ';$('sentencePrompt').append(blank,document.createTextNode(q.after));
-    $('sentenceTranslation').textContent=q.translation;
-    $('sceneSpeech').textContent=ep.lines[Math.min(currentQuestion,ep.lines.length-1)];
-    $('answerFeedback').hidden=true;$('answerFeedback').replaceChildren();
-    $('nextQuestion').hidden=true;
-    const options=$('answerOptions');options.replaceChildren();
-    q.options.slice().sort(()=>Math.random()-.5).forEach(word=>{
-      const btn=document.createElement('button');btn.type='button';btn.className='answer-option';btn.textContent=word;
-      btn.addEventListener('click',()=>chooseAnswer(word,btn));options.append(btn);
-    });
-    syncStats();
-  }
-  function chooseAnswer(word,button){
-    if(answered)return;answered=true;
-    const q=episodes[currentEpisode].questions[currentQuestion], correct=word===q.answer;
-    const blank=$('sentencePrompt').querySelector('b');blank.textContent=' '+q.answer+' ';blank.classList.add(correct?'blank-correct':'blank-wrong');
-    $('answerOptions').querySelectorAll('button').forEach(b=>{b.disabled=true;if(b.textContent===q.answer)b.classList.add('option-correct');else if(b===button)b.classList.add('option-wrong');});
-    const feedback=$('answerFeedback');feedback.hidden=false;
-    const title=document.createElement('strong');title.textContent=correct?'رائع! إجابة صحيحة 🎉':'قريب جداً! جرّب تذكّر القاعدة 💡';
-    const explanation=document.createElement('p');explanation.textContent=q.why;
-    feedback.append(title,explanation);
-    if(correct){correctCount++;xp+=6;}else{hearts=Math.max(0,hearts-1);}
-    syncStats();
-    $('nextQuestion').textContent=currentQuestion===episodes[currentEpisode].questions.length-1?'إنهاء الحلقة 🏆':'السؤال التالي ←';
-    $('nextQuestion').hidden=false;
-  }
-  async function finishEpisode(){
-    const ep=episodes[currentEpisode],score=Math.round(correctCount/ep.questions.length*100);
-    completedEpisodes.add(currentEpisode);$('gameStreak').textContent=String(completedEpisodes.size);
-    $('questionProgress').style.width='100%';
-    $('answerOptions').replaceChildren();
-    $('answerFeedback').hidden=false;$('answerFeedback').replaceChildren();
-    const title=document.createElement('strong');title.textContent='انتهت المغامرة! ⭐';
-    const detail=document.createElement('p');detail.textContent='نتيجتك '+score+'% — أجبت بشكل صحيح عن '+correctCount+' من '+ep.questions.length+' جمل.';
-    const reward=document.createElement('p');reward.className='episode-finish-reward';reward.textContent='حصلت على '+(correctCount*6)+' نقطة خبرة في هذه الحلقة.';
-    $('answerFeedback').append(title,detail,reward);
-    $('nextQuestion').hidden=true;
-    if(activeProfileUser?.id){
-      try{
-        const key='cartoon-episode-'+(currentEpisode+1);
-        const {data:old,error:readError}=await supabase.from('learning_progress').select('best_score,is_completed').eq('user_id',activeProfileUser.id).eq('lesson_key',key).maybeSingle();
-        if(readError)throw readError;
-        const {error}=await supabase.from('learning_progress').upsert({
-          user_id:activeProfileUser.id,lesson_key:key,current_stage:2,completed_stages:[1,2],
-          best_score:Math.max(old?.best_score||0,score),is_completed:Boolean(old?.is_completed||score>=60),updated_at:new Date().toISOString()
-        },{onConflict:'user_id,lesson_key'});
-        if(error)throw error;
-        const saved=document.createElement('small');saved.textContent='تم حفظ تقدم الحلقة في حسابك.';$('answerFeedback').append(saved);
-      }catch(err){console.error('Game progress save',err);}
-    }
-    const replay=document.createElement('button');replay.type='button';replay.className='game-primary';replay.textContent='أعد الحلقة';
-    replay.addEventListener('click',()=>openEpisode(currentEpisode));$('answerFeedback').append(replay);
-    const map=document.createElement('button');map.type='button';map.className='game-map-link';map.textContent='العودة إلى عالم المغامرات';
-    map.addEventListener('click',backToMap);$('answerFeedback').append(map);
-  }
-  $('nextQuestion').addEventListener('click',()=>{
-    if(currentQuestion<episodes[currentEpisode].questions.length-1){currentQuestion++;renderQuestion();}
-    else finishEpisode();
-  });
-  function backToMap(){stage.hidden=true;$('worldMap').hidden=false;$('worldMap').scrollIntoView({behavior:'smooth',block:'start'});}
-  $('backToMap').addEventListener('click',backToMap);
-  document.querySelectorAll('.episode-card').forEach(card=>card.addEventListener('click',()=>openEpisode(Number(card.dataset.episode))));
-  $('startAdventure').addEventListener('click',()=>openEpisode(0));
-  $('gameStreak').textContent='0';
-  syncStats();
+ const $=id=>document.getElementById(id), stage=$('cartoonStage');
+ if(!stage || stage.dataset.storyQuestReady) return; stage.dataset.storyQuestReady='1';
+ const make=(before,answer,after,translation,why,options,kind='Grammar')=>({before,answer,after,translation,why,options,kind});
+ const episodes=[
+ {title:'سرّ الخريطة القديمة',label:'المغامرة 01 · THE SECRET MAP',prop:'🗺️',caption:'THE SECRET MAP',voice:'Mia and Max discover a mysterious map in the park.',scene:'park',
+ questions:[
+ make('My name ___ Mia.','is','.','اسمي ميا.','نستخدم is مع الاسم المفرد وضمير my name.',['are','is','am']),
+ make('Where ___ you from?','are','?','من أين أنت؟','مع you نستخدم are.',['is','are','am']),
+ make('I ___ from Jordan.','am','.','أنا من الأردن.','مع I نستخدم am.',['is','am','are']),
+ make('The map is ___ the tree.','under','.','الخريطة تحت الشجرة.','under تعني تحت.',['between','under','behind'],'Vocabulary'),
+ make('Can you ___ the red mark?','see','?','هل تستطيع رؤية العلامة الحمراء؟','بعد can يأتي الفعل بصيغته الأساسية.',['sees','seeing','see']),
+ make('There ___ a key in the box.','is','.','يوجد مفتاح في الصندوق.','نستخدم there is للمفرد.',['are','is','be']),
+ make('The keys ___ next to the map.','are','.','المفاتيح بجانب الخريطة.','keys جمع، لذلك نستخدم are.',['is','am','are']),
+ make('Mia ___ not afraid.','is','.','ميا ليست خائفة.','النفي مع she يكون is not.',['are','is','do']),
+ make('What does “brave” mean?','شجاع','','ما معنى brave؟','brave تعني شجاع.',['حزين','شجاع','متعب'],'Vocabulary'),
+ make('Choose the correct sentence:','He has a key.','','اختر الجملة الصحيحة.','مع he نستخدم has وليس have.',['He have a key.','He has a key.','He having a key.'],'Grammar'),
+ make('Max: “I can hear something!” What can Max do?','يسمع شيئاً','','ما الذي يستطيع ماكس فعله؟','hear تعني يسمع.',['يرى شيئاً','يسمع شيئاً','يكتب شيئاً'],'Listening'),
+ make('The map belongs ___ Mia.','to','.','الخريطة تخص ميا.','التركيب belong to يعني يخص.',['at','to','for']),
+ make('Yesterday, they ___ the old key.','found','.','بالأمس وجدا المفتاح القديم.','found هو الماضي من find.',['find','finding','found'],'Grammar'),
+ make('If the door is closed, we need a ___.','key','.','إذا كان الباب مغلقاً نحتاج إلى مفتاح.','key تعني مفتاح.',['cloud','key','river'],'Vocabulary'),
+ make('“Let’s follow the path.” What should they do?','يتبعوا الطريق','','ماذا ينبغي أن يفعلا؟','follow the path تعني اتّباع الطريق.',['يتركا الخريطة','يتبعا الطريق','يشتريا طعاماً'],'Listening'),
+ make('The cave is darker ___ the park.','than','.','الكهف أكثر ظلمة من الحديقة.','نستخدم than في المقارنة.',['then','than','that']),
+ make('They ___ looking for the treasure now.','are','.','إنهما يبحثان عن الكنز الآن.','المضارع المستمر: are + verb-ing.',['is','are','am']),
+ make('Choose the past form of “go”.','went','','اختر الماضي من go.','الماضي غير المنتظم من go هو went.',['goed','gone','went'],'Grammar'),
+ make('Mia says: “Be careful!” She means:','انتبه','','ماذا تقصد ميا؟','Be careful تعني انتبه أو كن حذراً.',['أسرع','انتبه','نم'],'Listening'),
+ make('We found the treasure ___ the cave.','inside','.','وجدنا الكنز داخل الكهف.','inside تعني داخل.',['between','inside','above'],'Vocabulary'),
+ make('Which question asks about a place?','Where is it?','','أي سؤال يسأل عن المكان؟','Where للسؤال عن المكان.',['When is it?','Where is it?','Who is it?'],'Grammar'),
+ make('The adventure was very ___.','exciting','.','كانت المغامرة مثيرة جداً.','exciting تصف شيئاً يثير الحماس.',['excitedly','exciting','excite'],'Vocabulary'),
+ make('They have ___ the treasure!','found','.','لقد عثرا على الكنز!','present perfect: have + past participle.',['find','found','finding'],'Grammar'),
+ make('What is the best title for this story?','The Secret Map','','ما العنوان الأنسب للقصة؟','العنوان يلخص اكتشاف الخريطة والبحث عن الكنز.',['A Day at School','The Secret Map','A New Bicycle'],'Reading')
+ ]},
+ {title:'البيت الذي يتكلم',label:'المغامرة 02 · THE TALKING HOUSE',prop:'🏡',caption:'THE TALKING HOUSE',voice:'A strange house speaks to Mia and Max. They must solve its riddles.',scene:'home',
+ questions:[
+ make('This house ___ three windows.','has','.','هذا المنزل لديه ثلاث نوافذ.','مع house نستخدم has.',['have','has','having']),
+ make('There are two ___ in the kitchen.','chairs','.','هناك كرسيان في المطبخ.','جمع chair هو chairs.',['chair','chairs','chaires'],'Vocabulary'),
+ make('The cat is ___ the sofa.','on','.','القطة على الأريكة.','on تعني على.',['in','on','between'],'Vocabulary'),
+ make('I ___ breakfast every morning.','eat','.','أتناول الفطور كل صباح.','عادة يومية: مضارع بسيط مع I.',['eats','eat','eating']),
+ make('She ___ TV in the evening.','watches','.','هي تشاهد التلفاز مساءً.','مع she نضيف es للفعل watch.',['watch','watching','watches']),
+ make('The opposite of “clean” is ___.','dirty','.','عكس نظيف هو متسخ.','dirty تعني متسخ.',['tidy','dirty','bright'],'Vocabulary'),
+ make('The room is ___ big; it is small.','not','.','الغرفة ليست كبيرة؛ إنها صغيرة.','نستخدم not للنفي.',['no','not','never']),
+ make('How ___ apples are there?','many','?','كم تفاحة توجد؟','How many مع الأسماء المعدودة.',['much','many','old']),
+ make('How ___ water do you need?','much','?','كم تحتاج من الماء؟','How much مع غير المعدود مثل water.',['many','much','few']),
+ make('The children ___ playing upstairs.','are','.','الأطفال يلعبون في الطابق العلوي.','children جمع، لذلك are.',['is','are','am']),
+ make('“Turn off the light.” means:','أطفئ الضوء','','ما معنى العبارة؟','turn off تعني يطفئ.',['افتح النافذة','أطفئ الضوء','نظف الطاولة'],'Listening'),
+ make('Yesterday, the door ___ open.','was','.','كان الباب مفتوحاً بالأمس.','الماضي من is هو was.',['were','was','is'],'Grammar'),
+ make('We ___ visit grandma tomorrow.','will','.','سنزور جدتنا غداً.','will للتعبير عن المستقبل.',['did','will','was']),
+ make('The kitchen is ___ than the bedroom.','cleaner','.','المطبخ أنظف من غرفة النوم.','cleaner صيغة مقارنة قصيرة.',['cleanest','cleaner','clean']),
+ make('Choose the correct sentence:','There are five rooms.','','اختر الجملة الصحيحة.','rooms جمع، لذلك نقول there are.',['There is five rooms.','There are five rooms.','There be five rooms.'],'Grammar'),
+ make('A “neighbor” is someone who…','يسكن بالقرب منك','','ما معنى neighbor؟','neighbor هو شخص يسكن بالقرب منك.',['يعمل في مستشفى','يسكن بالقرب منك','يقود طائرة'],'Vocabulary'),
+ make('The house says: “Please be quiet.” What should you do?','تتحدث بهدوء','','ماذا يجب أن تفعل؟','be quiet تعني التزم الهدوء.',['تصرخ','تتحدث بهدوء','تركض'],'Listening'),
+ make('I have lived here ___ 2020.','since','','أسكن هنا منذ 2020.','since تأتي مع نقطة بداية زمنية.',['for','since','during'],'Grammar'),
+ make('The children were tired, ___ they went to bed.','so','','كان الأطفال متعبين، لذلك ذهبوا للنوم.','so تربط السبب بالنتيجة.',['but','so','because']),
+ make('Which word is an adjective?','comfortable','','أي كلمة صفة؟','comfortable صفة تعني مريح.',['quickly','comfortable','comfort'],'Grammar'),
+ make('The opposite of “empty” is ___.','full','.','عكس فارغ هو ممتلئ.','full تعني ممتلئ.',['full','quiet','soft'],'Vocabulary'),
+ make('If something is “broken”, it is…','معطلاً','','ما معنى broken؟','broken تعني مكسوراً أو معطلاً.',['جديد','معطلاً','نظيفاً'],'Vocabulary'),
+ make('The house was built ___ 1990.','in','.','بُني المنزل في عام 1990.','نستخدم in مع السنوات.',['at','on','in'],'Grammar'),
+ make('What is the main idea of this adventure?','حل ألغاز المنزل','','ما الفكرة الرئيسية؟','الأبطال يتعلمون وصف المنزل وحل ألغاز صاحبه.',['شراء منزل','حل ألغاز المنزل','السفر إلى البحر'],'Reading')
+ ]},
+ {title:'رحلة إلى مدينة المستقبل',label:'المغامرة 03 · CITY OF TOMORROW',prop:'🚀',caption:'CITY OF TOMORROW',voice:'Mia and Max travel to a futuristic city and complete real-life English challenges.',scene:'city',
+ questions:[
+ make('Excuse me, how can I ___ to the station?','get','','عذراً، كيف أصل إلى المحطة؟','get to تعني يصل إلى.',['gets','getting','get']),
+ make('The train leaves ___ 8:30.','at','.','يغادر القطار الساعة 8:30.','at مع الوقت المحدد.',['in','on','at'],'Grammar'),
+ make('You ___ wear a seat belt.','must','.','يجب أن ترتدي حزام الأمان.','must للتعبير عن الإلزام.',['might','must','could']),
+ make('You ___ smoke here. It is forbidden.','must not','.','يُمنع التدخين هنا.','must not تعني ممنوع.',['must','must not','should']),
+ make('Could you tell me ___ the museum is?','where','','هل يمكنك إخباري أين المتحف؟','بعد tell me نستخدم ترتيب الجملة غير المباشر.',['where','where is','is where'],'Grammar'),
+ make('I am interested ___ technology.','in','.','أنا مهتم بالتكنولوجيا.','التركيب الصحيح interested in.',['on','at','in']),
+ make('This is the ___ building in the city.','tallest','.','هذا أطول مبنى في المدينة.','tallest صيغة التفضيل.',['taller','tallest','most tall']),
+ make('If it rains, we ___ stay inside.','will','.','إذا أمطرت، سنبقى في الداخل.','الشرط الأول: if + present, will + verb.',['would','will','are']),
+ make('The robot can ___ four languages.','speak','.','يستطيع الروبوت التحدث بأربع لغات.','بعد can يأتي الفعل الأساسي.',['speaks','spoke','speak']),
+ make('“Reliable” means…','يمكن الاعتماد عليه','','ما معنى reliable؟','reliable تعني جدير بالثقة أو يمكن الاعتماد عليه.',['سريع جداً','يمكن الاعتماد عليه','باهظ'],'Vocabulary'),
+ make('The road is closed ___ repairs.','because of','','الطريق مغلق بسبب أعمال الصيانة.','because of يأتي قبل اسم أو عبارة اسمية.',['although','because of','despite'],'Grammar'),
+ make('By the time we arrived, the bus ___.','had left','.','عندما وصلنا، كان الباص قد غادر.','الماضي التام لحدث سبق حدثاً ماضياً آخر.',['leaves','has left','had left'],'Grammar'),
+ make('The announcement says: “Platform three.” Where should passengers go?','الرصيف الثالث','','إلى أين يذهب المسافرون؟','platform تعني رصيف أو منصة القطار.',['البوابة الأولى','الرصيف الثالث','موقف السيارات'],'Listening'),
+ make('Despite ___ tired, she finished the task.','being','','رغم أنها كانت متعبة، أنهت المهمة.','بعد despite نستخدم اسماً أو gerund.',['be','being','was'],'Grammar'),
+ make('The new system is more efficient ___ the old one.','than','.','النظام الجديد أكثر كفاءة من القديم.','than للمقارنة.',['as','then','than']),
+ make('Choose the best response: “Would you mind opening the window?”','Not at all.','','ما الرد المناسب على طلب مهذب؟','Not at all تعني لا مانع.',['I am window.','Not at all.','Yes, I mind.'],'Listening'),
+ make('The information ___ accurate.','is','.','المعلومات دقيقة.','information اسم غير معدود ويعامل كمفرد.',['are','is','be'],'Grammar'),
+ make('She suggested ___ the earlier train.','taking','','اقترحت ركوب القطار الأبكر.','suggest يتبعه غالباً فعل ing.',['to take','take','taking'],'Grammar'),
+ make('We need to reduce energy ___.','consumption','.','نحتاج إلى تقليل استهلاك الطاقة.','consumption تعني الاستهلاك.',['consume','consumer','consumption'],'Vocabulary'),
+ make('Had I known, I ___ have helped.','would','','لو كنت أعلم، لكنت ساعدت.','صيغة الشرط الثالث: would have + past participle.',['will','would','did'],'Grammar'),
+ make('The project was delayed ___ a technical problem.','due to','','تأخر المشروع بسبب مشكلة تقنية.','due to تعني بسبب.',['although','due to','unless']),
+ make('Which sentence is the most formal?','I would appreciate your assistance.','','أي جملة أكثر رسمية؟','would appreciate صيغة مهذبة ورسمية.',['Help me now.','I want help.','I would appreciate your assistance.'],'Reading'),
+ make('The word “sustainable” describes something that…','يمكن استمراره دون استنزاف الموارد','','ما معنى sustainable؟','تعني مستداماً وقابلاً للاستمرار.',['ينتهي بسرعة','يمكن استمراره دون استنزاف الموارد','غير قانوني'],'Vocabulary'),
+ make('What is the best summary of this journey?','التواصل وحل المشكلات في مدينة حديثة','','ما أفضل تلخيص للمغامرة؟','القصة تختبر اللغة في مواقف السفر والتقنية والتواصل.',['زيارة حديقة فقط','التواصل وحل المشكلات في مدينة حديثة','تعلم أسماء الحيوانات'],'Reading')
+ ]}
+ ];
+ let epIndex=0,qIndex=0,xp=0,hearts=5,correct=0,answered=false,completed=0,voiceEnabled=true;
+ const completedSet=new Set();
+ const voices=()=>window.speechSynthesis?.getVoices?.()||[];
+ function speak(text,slow=false){
+  if(!voiceEnabled||!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=slow?.82:.94;u.pitch=1.16;
+  const list=voices();const pick=list.find(v=>/^en-US/i.test(v.lang)&&/female|samantha|zira|aria|jenny/i.test(v.name))||list.find(v=>/^en-US/i.test(v.lang))||list.find(v=>/^en/i.test(v.lang));if(pick)u.voice=pick;
+  speechSynthesis.speak(u);
+ }
+ function stats(){ $('gameXp').textContent=xp;$('gameHearts').textContent=hearts.toFixed(1).replace('.0','');$('stageHearts').textContent=hearts.toFixed(1).replace('.0','');$('gameStreak').textContent=completed; }
+ function start(i){
+  epIndex=i;qIndex=0;correct=0;hearts=5;answered=false;const ep=episodes[i];
+  $('worldMap').hidden=true;stage.hidden=false;$('stageEpisodeLabel').textContent=ep.label;
+  $('sceneProp').textContent=ep.prop;$('sceneCaption').textContent=ep.caption;$('sceneSpeech').textContent=ep.voice;
+  $('sceneCharacterA').className='scene-character scene-character-a character-bounce';$('sceneCharacterB').className='scene-character scene-character-b character-bounce';
+  const intro=$('answerFeedback');intro.hidden=false;intro.replaceChildren();
+  const h=document.createElement('strong');h.textContent='🎬 '+ep.title;
+  const p=document.createElement('p');p.textContent=ep.voice+' ستخوض '+ep.questions.length+' تحدياً متنوعاً. استمع جيداً وابدأ!';
+  const b=document.createElement('button');b.className='game-primary';b.textContent='ابدأ القصة';b.onclick=()=>{intro.hidden=true;render();speak(ep.voice);};
+  intro.append(h,p,b);$('answerOptions').replaceChildren();$('nextQuestion').hidden=true;
+  stage.scrollIntoView({behavior:'smooth',block:'start'});stats();
+ }
+ function render(){
+  const ep=episodes[epIndex],q=ep.questions[qIndex];answered=false;
+  $('questionCounter').textContent='التحدي '+(qIndex+1)+' من '+ep.questions.length+' · '+q.kind;
+  $('questionProgress').style.width=(qIndex/ep.questions.length*100)+'%';
+  const prompt=$('sentencePrompt');prompt.replaceChildren();prompt.append(document.createTextNode(q.before));
+  const blank=document.createElement('b');blank.textContent=' _____ ';prompt.append(blank,document.createTextNode(q.after));
+  $('sentenceTranslation').textContent=q.translation;
+  $('sceneSpeech').textContent=q.kind==='Listening'?q.translation+' — Listen and choose the meaning.':q.before+' _____ '+q.after;
+  $('answerFeedback').hidden=true;$('answerFeedback').replaceChildren();$('nextQuestion').hidden=true;
+  const opts=$('answerOptions');opts.replaceChildren();
+  [...q.options].sort(()=>Math.random()-.5).forEach(word=>{const b=document.createElement('button');b.type='button';b.className='answer-option';b.textContent=word;b.onclick=()=>answer(word,b);opts.append(b);});
+  speak(q.before+(q.answer? q.answer:'')+q.after);
+  stats();
+ }
+ function answer(word,button){
+  if(answered)return;answered=true;const q=episodes[epIndex].questions[qIndex],ok=word===q.answer;
+  const blank=$('sentencePrompt').querySelector('b');blank.textContent=' '+q.answer+' ';blank.classList.add(ok?'blank-correct':'blank-wrong');
+  $('answerOptions').querySelectorAll('button').forEach(b=>{b.disabled=true;if(b.textContent===q.answer)b.classList.add('option-correct');else if(b===button)b.classList.add('option-wrong');});
+  if(ok){correct++;xp+=8;}else{hearts=Math.max(0,hearts-.5);}
+  const f=$('answerFeedback');f.hidden=false;f.replaceChildren();
+  const title=document.createElement('strong');title.textContent=ok?'أحسنت! إجابة صحيحة 🌟':'خصم نصف قلب ❤️‍🩹';
+  const p=document.createElement('p');p.textContent=q.why;
+  const sub=document.createElement('small');sub.textContent='الإجابة الصحيحة: '+q.answer+' · '+(ok?'+8 XP':'تبقّى '+hearts+' قلب');
+  f.append(title,p,sub);$('nextQuestion').textContent=qIndex===episodes[epIndex].questions.length-1?'عرض نتيجة المغامرة 🏆':'متابعة القصة ←';$('nextQuestion').hidden=false;
+  speak(ok?'Excellent! '+q.answer:q.answer+'. '+q.why);
+  stats();
+ }
+ async function finish(){
+  const ep=episodes[epIndex],score=Math.round(correct/ep.questions.length*100);
+  completedSet.add(epIndex);completed=completedSet.size;$('questionProgress').style.width='100%';$('answerOptions').replaceChildren();
+  const f=$('answerFeedback');f.hidden=false;f.replaceChildren();
+  const h=document.createElement('strong');h.textContent='🏆 اكتملت المغامرة!';
+  const p=document.createElement('p');p.textContent='نتيجتك '+score+'% — أجبت بشكل صحيح عن '+correct+' من '+ep.questions.length+' تحدياً.';
+  const advice=document.createElement('p');advice.textContent=score>=90?'ممتاز! أداء قوي جداً.':score>=70?'جيد جداً، راجع الأخطاء لتحقق إتقاناً أعلى.':'واصل التدريب وأعد المغامرة لتحسين نتيجتك.';
+  f.append(h,p,advice);
+  if(activeProfileUser?.id){try{const key='story-quest-'+(epIndex+1);const {data:old,error:e}=await supabase.from('learning_progress').select('best_score,is_completed').eq('user_id',activeProfileUser.id).eq('lesson_key',key).maybeSingle();if(e)throw e;const {error}=await supabase.from('learning_progress').upsert({user_id:activeProfileUser.id,lesson_key:key,current_stage:2,completed_stages:[1,2],best_score:Math.max(old?.best_score||0,score),is_completed:Boolean(old?.is_completed||score>=70),updated_at:new Date().toISOString()},{onConflict:'user_id,lesson_key'});if(error)throw error;const saved=document.createElement('small');saved.textContent='تم حفظ أفضل نتيجة في حسابك.';f.append(saved);}catch(e){console.error('Story progress save failed',e);}}
+  const replay=document.createElement('button');replay.className='game-primary';replay.textContent='أعد المغامرة';replay.onclick=()=>start(epIndex);f.append(replay);
+  const map=document.createElement('button');map.className='game-map-link';map.textContent='العودة إلى أغلفة المغامرات';map.onclick=back;f.append(map);
+  $('nextQuestion').hidden=true;stats();
+ }
+ function back(){speechSynthesis?.cancel?.();stage.hidden=true;$('worldMap').hidden=false;$('worldMap').scrollIntoView({behavior:'smooth',block:'start'});}
+ $('nextQuestion').addEventListener('click',()=>{if(qIndex<episodes[epIndex].questions.length-1){qIndex++;render();}else finish();});
+ $('backToMap').addEventListener('click',back);
+ document.querySelectorAll('.episode-card').forEach(c=>c.addEventListener('click',()=>start(Number(c.dataset.episode))));
+ $('startAdventure').addEventListener('click',()=>start(0));
+ const toolbar=document.createElement('div');toolbar.className='story-audio-tools';
+ const audio=document.createElement('button');audio.type='button';audio.textContent='🔊 إعادة سماع الحوار';audio.onclick=()=>speak($('sceneSpeech').textContent,true);
+ const mute=document.createElement('button');mute.type='button';mute.textContent='🔇 إيقاف الصوت';mute.onclick=()=>{voiceEnabled=false;speechSynthesis?.cancel?.();};
+ const unmute=document.createElement('button');unmute.type='button';unmute.textContent='🎙️ تشغيل الصوت';unmute.onclick=()=>{voiceEnabled=true;speak($('sceneSpeech').textContent);};
+ toolbar.append(audio,mute,unmute);$('cartoonScene').after(toolbar);
+ stats();
 })();
