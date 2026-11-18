@@ -482,3 +482,188 @@ document.getElementById('adminLessonForm').addEventListener('submit',async event
   event.target.reset();adminNotice('تم إنشاء الدرس بنجاح.');await loadAdminContent();
 });
 document.getElementById('adminRefresh').addEventListener('click',loadAdminContent);
+
+
+// LEXORA learner course catalog: only published levels, units and lessons are exposed by RLS.
+const courseCatalog = document.getElementById('courseCatalog');
+const courseFilters = document.getElementById('courseFilters');
+const courseStatus = document.getElementById('courseStatus');
+let courseCatalogData = [];
+let selectedCourseLevel = 'all';
+
+function courseNode(tag, className, value) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (value !== undefined && value !== null) node.textContent = String(value);
+  return node;
+}
+
+function renderCourseMedia(container, mediaRows) {
+  if (!mediaRows?.length) {
+    container.append(courseNode('p', 'course-muted', 'لا تتوفر مادة مرئية أو صوتية لهذا الدرس حالياً.'));
+    return;
+  }
+  mediaRows.forEach(media => {
+    if (!media.external_url) return;
+    const item = courseNode('div', 'course-media-item');
+    const label = courseNode('strong', '', media.caption || (media.media_type === 'video' ? 'مشاهدة الدرس' : 'استمع إلى الدرس'));
+    item.append(label);
+    if (media.media_type === 'video') {
+      const player = document.createElement('video');
+      player.controls = true;
+      player.preload = 'metadata';
+      player.playsInline = true;
+      player.src = media.external_url;
+      player.setAttribute('aria-label', media.caption || 'فيديو الدرس');
+      item.append(player);
+    } else if (media.media_type === 'audio') {
+      const player = document.createElement('audio');
+      player.controls = true;
+      player.preload = 'none';
+      player.src = media.external_url;
+      player.setAttribute('aria-label', media.caption || 'صوت الدرس');
+      item.append(player);
+    } else {
+      const link = courseNode('a', 'course-source-link', 'فتح المادة التعليمية');
+      link.href = media.external_url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      item.append(link);
+    }
+    container.append(item);
+  });
+}
+
+function renderCourseCatalog() {
+  if (!courseCatalog) return;
+  courseCatalog.replaceChildren();
+  const visibleLevels = courseCatalogData.filter(level => selectedCourseLevel === 'all' || level.code === selectedCourseLevel);
+  if (!visibleLevels.length) {
+    courseCatalog.append(courseNode('p', 'course-empty', 'لا توجد دروس منشورة في هذا المستوى حالياً.'));
+    return;
+  }
+  visibleLevels.forEach(level => {
+    const levelBlock = courseNode('section', 'course-level-block');
+    const levelHead = courseNode('div', 'course-level-heading');
+    const levelTitle = document.createElement('h3');
+    levelTitle.textContent = level.title_ar + ' · ' + level.code.toUpperCase();
+    levelHead.append(levelTitle, courseNode('span', 'course-level-description', level.description_ar || level.title_en));
+    levelBlock.append(levelHead);
+    (level.units || []).forEach(unit => {
+      const unitBlock = courseNode('div', 'course-unit-block');
+      const unitTitle = document.createElement('h4');
+      unitTitle.textContent = unit.title_ar + ' · ' + unit.title_en;
+      unitBlock.append(unitTitle);
+      const lessonGrid = courseNode('div', 'course-lesson-grid');
+      (unit.lessons || []).forEach(lesson => {
+        const card = courseNode('article', 'course-lesson-card');
+        const top = courseNode('div', 'course-lesson-top');
+        top.append(courseNode('span', 'course-level-pill', level.code.toUpperCase()));
+        top.append(courseNode('span', lesson.access_plan === 'pro' ? 'course-plan-pill pro' : 'course-plan-pill', lesson.access_plan === 'pro' ? 'PRO' : 'مجاني'));
+        const title = document.createElement('h5');
+        title.textContent = lesson.title_ar + ' · ' + lesson.title_en;
+        const meta = courseNode('p', 'course-lesson-meta', (lesson.duration_minutes || 10) + ' دقائق');
+        const summary = courseNode('p', 'course-lesson-intro', lesson.summary_ar || 'درس تدريبي لتطوير مهاراتك في الإنجليزية.');
+        const details = document.createElement('details');
+        details.className = 'course-lesson-details';
+        const summaryToggle = document.createElement('summary');
+        summaryToggle.textContent = 'عرض محتوى الدرس';
+        details.append(summaryToggle);
+        const content = courseNode('div', 'course-lesson-content');
+        if (lesson.summary_en) {
+          content.append(courseNode('h6', '', 'Lesson overview'));
+          content.append(courseNode('p', 'course-description-en', lesson.summary_en));
+        }
+        if (lesson.summary_ar) {
+          content.append(courseNode('h6', '', 'مراحل الدرس'));
+          content.append(courseNode('p', 'course-description-ar', lesson.summary_ar));
+        }
+        const mediaHeading = courseNode('h6', '', 'الفيديو والاستماع');
+        content.append(mediaHeading);
+        renderCourseMedia(content, lesson.media || []);
+        if (lesson.vocabulary?.length) {
+          content.append(courseNode('h6', '', 'المفردات'));
+          const words = courseNode('div', 'course-word-list');
+          lesson.vocabulary.forEach(word => {
+            const wordCard = courseNode('div', 'course-word');
+            wordCard.append(courseNode('strong', '', word.term));
+            wordCard.append(courseNode('span', '', word.meaning_ar));
+            if (word.pronunciation) wordCard.append(courseNode('small', '', word.pronunciation));
+            if (word.example_en) wordCard.append(courseNode('p', 'course-word-example', word.example_en));
+            if (word.example_ar) wordCard.append(courseNode('p', 'course-word-example-ar', word.example_ar));
+            words.append(wordCard);
+          });
+          content.append(words);
+        }
+        details.append(content);
+        card.append(top, title, meta, summary, details);
+        lessonGrid.append(card);
+      });
+      if (!unit.lessons?.length) lessonGrid.append(courseNode('p', 'course-muted', 'سيتم إضافة الدروس لهذه الوحدة قريباً.'));
+      unitBlock.append(lessonGrid);
+      levelBlock.append(unitBlock);
+    });
+    courseCatalog.append(levelBlock);
+  });
+}
+
+async function loadCourseCatalog() {
+  if (!courseCatalog) return;
+  courseStatus.textContent = 'جارٍ تحميل الدروس…';
+  try {
+    const [levelsResult, unitsResult, lessonsResult] = await Promise.all([
+      supabase.from('course_levels').select('id,code,title_ar,title_en,description_ar,sort_order').eq('is_published', true).order('sort_order'),
+      supabase.from('course_units').select('id,level_id,title_ar,title_en,description_ar,sort_order').eq('is_published', true).order('sort_order'),
+      supabase.from('lessons').select('id,unit_id,title_ar,title_en,summary_ar,summary_en,access_plan,duration_minutes,sort_order').eq('status', 'published').order('sort_order')
+    ]);
+    if (levelsResult.error) throw levelsResult.error;
+    if (unitsResult.error) throw unitsResult.error;
+    if (lessonsResult.error) throw lessonsResult.error;
+    const lessons = lessonsResult.data || [];
+    const ids = lessons.map(lesson => lesson.id);
+    let media = [], vocabulary = [];
+    if (ids.length) {
+      const [mediaResult, vocabularyResult] = await Promise.all([
+        supabase.from('lesson_media').select('id,lesson_id,media_type,external_url,language,caption,sort_order').in('lesson_id', ids).order('sort_order'),
+        supabase.from('lesson_vocabulary').select('id,lesson_id,term,meaning_ar,pronunciation,example_en,example_ar,sort_order').in('lesson_id', ids).order('sort_order')
+      ]);
+      if (mediaResult.error) throw mediaResult.error;
+      if (vocabularyResult.error) throw vocabularyResult.error;
+      media = mediaResult.data || [];
+      vocabulary = vocabularyResult.data || [];
+    }
+    courseCatalogData = (levelsResult.data || []).map(level => ({
+      ...level,
+      units: (unitsResult.data || []).filter(unit => unit.level_id === level.id).map(unit => ({
+        ...unit,
+        lessons: lessons.filter(lesson => lesson.unit_id === unit.id).map(lesson => ({
+          ...lesson,
+          media: media.filter(item => item.lesson_id === lesson.id),
+          vocabulary: vocabulary.filter(item => item.lesson_id === lesson.id)
+        }))
+      }))
+    }));
+    if (courseFilters) {
+      courseFilters.replaceChildren();
+      const filters = [{code:'all',label:'كل المستويات'}, ...(levelsResult.data || []).map(level => ({code:level.code,label:level.code.toUpperCase()}))];
+      filters.forEach(filter => {
+        const button = courseNode('button', 'course-filter' + (selectedCourseLevel === filter.code ? ' active' : ''), filter.label);
+        button.type = 'button';
+        button.addEventListener('click', () => {
+          selectedCourseLevel = filter.code;
+          courseFilters.querySelectorAll('button').forEach(item => item.classList.toggle('active', item.textContent === filter.label));
+          renderCourseCatalog();
+        });
+        courseFilters.append(button);
+      });
+    }
+    const count = lessons.length;
+    courseStatus.textContent = count + ' درساً متاحاً حالياً';
+    renderCourseCatalog();
+  } catch (error) {
+    console.error('LEXORA course catalog:', error);
+    courseStatus.textContent = 'تعذر تحميل الدروس';
+    courseCatalog.replaceChildren(courseNode('p', 'course-error', 'لم نتمكن من تحميل الدروس الآن. حدّث الصفحة وحاول مرة أخرى.'));
+  }
+}
+loadCourseCatalog();
