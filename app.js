@@ -1198,13 +1198,14 @@ loadCourseCatalog();
    const span=document.createElement('button');span.type='button';span.className='curriculum-word';span.textContent=part;
    span.addEventListener('click',()=>{
     const key=clean.replace(/'s$/,'');$('curriculumWordTranslation').textContent=part.trim()+' = '+(wordMeanings[key]||'معنى الكلمة ضمن الجملة');
-    $('curriculumWordTranslation').hidden=false;speakSentence(full);
+    $('curriculumWordTranslation').hidden=false;
    });
    target.append(span);
   });
   $('curriculumWordTranslation').hidden=true;
  }
 
+ window.LEXORA_PRACTICE_BANK=bank;
  const icons=['👋','👨‍👩‍👧','🏠','🍽️','🛍️','📍','🚦','🚶','🚌','🚘'];
  const colors=['#35c5a0','#f0a65b','#78a9f5','#f18b75','#c69af4','#75b8d9','#f0bd55','#66c79b','#7ca6e8','#e58c9b'];
  const units=root.querySelector('#curriculumUnits');
@@ -1239,6 +1240,7 @@ loadCourseCatalog();
   if(answered)return;answered=true;const q=order[index].q,ok=choice===q[1];if(ok)score++;
   $('curriculumOptions').querySelectorAll('button').forEach(b=>{b.disabled=true;if(b.textContent===q[1])b.classList.add('correct');else if(b===button)b.classList.add('incorrect');});
   const f=$('curriculumFeedback');f.hidden=false;f.textContent=(ok?'إجابة صحيحة! أحسنت. ':'ليست الإجابة الصحيحة. ')+'الإجابة: '+q[1]+'. '+q[2];
+  speakSentence(q[0].replace(/___|_{2,}/g,q[1]));
   $('curriculumNext').textContent=index===order.length-1?'عرض النتيجة':'التحدي التالي ←';$('curriculumNext').hidden=false;
  }
  function start(key,unit){
@@ -1260,4 +1262,27 @@ loadCourseCatalog();
   if('speechSynthesis'in window)speechSynthesis.cancel();$('curriculumPlayer').hidden=true;units.hidden=false;
   units.scrollIntoView({behavior:'smooth',block:'start'});
  });
+})();
+
+(()=>{
+ const bank=window.LEXORA_PRACTICE_BANK;if(!bank)return;const el=id=>document.getElementById(id),shelf=el('cartoonShelf'),player=el('cartoonChallengePlayer');if(!shelf||shelf.dataset.ready)return;shelf.dataset.ready='1';
+ const worlds={daily:{title:'أسرار الحياة اليومية',items:bank.daily},street:{title:'مغامرة في المدينة',items:bank.street},mix:{title:'سرّ المدينة الغامض',items:bank.daily.slice(0,50).concat(bank.street.slice(0,50))}};
+ let active='daily',items=[],n=0,points=0,locked=false;
+ function say(line){if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(line);u.lang='en-US';u.rate=.88;u.pitch=1.12;const v=speechSynthesis.getVoices().find(x=>/^en-US/i.test(x.lang)&&/female|samantha|zira|aria|jenny/i.test(x.name));if(v)u.voice=v;speechSynthesis.speak(u);}
+ function draw(){locked=false;const q=items[n].q;el('cartoonActiveTitle').textContent=worlds[active].title;el('cartoonCounter').textContent=(n+1)+' / 100';el('cartoonProgress').style.width=(n/100*100)+'%';el('cartoonPrompt').textContent=q[0];el('cartoonArabic').textContent=q[2];el('cartoonResult').hidden=true;el('cartoonNext').hidden=true;const box=el('cartoonChoices');box.replaceChildren();[q[1],q[3],q[4]].sort(()=>Math.random()-.5).forEach(word=>{const b=document.createElement('button');b.className='cartoon-choice';b.textContent=word;b.onclick=()=>{if(locked)return;locked=true;const ok=word===q[1];if(ok)points++;box.querySelectorAll('button').forEach(x=>{x.disabled=true;if(x.textContent===q[1])x.classList.add('correct');else if(x===b)x.classList.add('wrong');});el('cartoonResult').hidden=false;el('cartoonResult').textContent=(ok?'إجابة صحيحة! ':'الإجابة الصحيحة: ')+q[1]+' — '+q[2];say(q[0].replace(/___|_{2,}/g,q[1]));el('cartoonNext').hidden=false;el('cartoonNext').textContent=n===99?'عرض النتيجة':'المشهد التالي ←';};box.append(b);});}
+ shelf.querySelectorAll('[data-cartoon]').forEach(b=>b.onclick=()=>{active=b.dataset.cartoon;items=worlds[active].items.slice(0,100);n=0;points=0;shelf.hidden=true;player.hidden=false;draw();player.scrollIntoView({behavior:'smooth',block:'start'});});
+ el('cartoonNext').onclick=()=>{if(n<99){n++;draw();}else{el('cartoonPrompt').textContent='انتهت المغامرة!';el('cartoonArabic').textContent='نتيجتك: '+points+' من 100';el('cartoonChoices').replaceChildren();el('cartoonResult').hidden=false;el('cartoonResult').textContent='أكملت جميع تحديات هذا العالم.';el('cartoonNext').hidden=true;}};
+ el('cartoonBack').onclick=()=>{if(window.speechSynthesis)speechSynthesis.cancel();player.hidden=true;shelf.hidden=false;};
+})();
+(()=>{
+ const bank=window.LEXORA_PRACTICE_BANK;if(!bank)return;const el=id=>document.getElementById(id),intro=el('detectiveIntro'),player=el('detectivePlayer');if(!intro||player.dataset.ready)return;player.dataset.ready='1';
+ const data=bank.daily.slice(0,50).concat(bank.street.slice(0,50)).map((x,i)=>({q:x.q[0],a:x.q[1],bad:[x.q[3],x.q[4]],id:i}));
+ let order=[],n=0,score=0,time=10,timer=null,chosen=[],locked=false;const shuffle=a=>a.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(y=>y.x);
+ function stop(){if(timer){clearInterval(timer);timer=null;}}
+ function say(line){if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(line);u.lang='en-US';u.rate=.88;u.pitch=1.13;const v=speechSynthesis.getVoices().find(x=>/^en-US/i.test(x.lang)&&/female|samantha|zira|aria|jenny/i.test(x.name));if(v)u.voice=v;speechSynthesis.speak(u);}
+ function renderAnswer(){const box=el('detectiveBuiltAnswer');box.replaceChildren();chosen.forEach((t,i)=>{const b=document.createElement('button');b.className='detective-answer-tile';b.textContent=t.word+' ×';b.onclick=()=>{if(locked)return;chosen.splice(i,1);renderAnswer();};box.append(b);});el('detectiveKeyboard').querySelectorAll('button').forEach(b=>{b.disabled=chosen.some(x=>String(x.id)===b.dataset.tile);});}
+ function submit(timeout){if(locked)return;locked=true;stop();const c=order[n],answer=chosen.map(x=>x.word).join(' '),ok=answer.toLowerCase()===c.a.toLowerCase();if(ok)score++;el('detectiveKeyboard').querySelectorAll('button').forEach(b=>b.disabled=true);el('detectiveSubmit').disabled=true;el('detectiveFeedback').hidden=false;el('detectiveFeedback').textContent=(timeout?'انتهى الوقت. ':ok?'إجابة صحيحة! ':'ليست صحيحة. ')+'الإجابة الصحيحة: '+c.a;say(c.q.replace(/___|_{2,}/g,c.a));el('detectiveNext').hidden=false;el('detectiveNext').textContent=n===99?'إنهاء التحقيق':'السؤال التالي ←';}
+ function draw(){stop();time=10;chosen=[];locked=false;const c=order[n];el('detectiveProgressText').textContent='السؤال '+(n+1)+' من 100';el('detectiveMeter').style.width=(n/100*100)+'%';el('detectiveTimer').textContent=time;el('detectiveTimer').classList.remove('urgent');el('detectiveQuestion').textContent='أكمل إفادة الشاهد: '+c.q;el('detectiveArabic').textContent='اختر الكلمات لتكوين الإجابة الصحيحة.';el('detectiveFeedback').hidden=true;el('detectiveNext').hidden=true;el('detectiveSubmit').disabled=false;renderAnswer();const correct=c.a.trim().split(/\s+/),wrong=c.bad.flatMap(x=>x.trim().split(/\s+/));let pool=shuffle(correct.concat(wrong));while(pool.length<correct.length+3)pool=pool.concat(['please','the','is','at']);pool=shuffle(pool).slice(0,Math.max(4,correct.length+3));const box=el('detectiveKeyboard');box.replaceChildren();pool.forEach((word,id)=>{const b=document.createElement('button');b.className='detective-key';b.textContent=word;b.dataset.tile=id;b.onclick=()=>{if(locked||chosen.some(x=>x.id===id))return;chosen.push({word,id});renderAnswer();};box.append(b);});timer=setInterval(()=>{time--;el('detectiveTimer').textContent=time;if(time<=3)el('detectiveTimer').classList.add('urgent');if(time<=0)submit(true);},1000);}
+ function start(){stop();order=shuffle(data);n=0;score=0;intro.hidden=true;el('detectiveFinish').hidden=true;player.hidden=false;draw();player.scrollIntoView({behavior:'smooth',block:'start'});}
+ el('detectiveStart').onclick=start;el('detectiveReplay').onclick=start;el('detectiveSubmit').onclick=()=>submit(false);el('detectiveClear').onclick=()=>{if(!locked){chosen=[];renderAnswer();}};el('detectiveExit').onclick=()=>{stop();if(window.speechSynthesis)speechSynthesis.cancel();player.hidden=true;intro.hidden=false;};el('detectiveNext').onclick=()=>{if(n<99){n++;draw();}else{stop();player.hidden=true;el('detectiveFinish').hidden=false;el('detectiveFinalScore').textContent='نتيجتك: '+score+' من 100';}};
 })();
