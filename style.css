@@ -43,3 +43,46 @@
 .admin-lesson-row button{flex:0 0 auto}
 @media(max-width:760px){.admin-section{padding:35px 5% 65px}.admin-grid{grid-template-columns:1fr}.admin-list-card{grid-column:auto}.admin-heading{align-items:flex-start;flex-direction:column}}
 @media(max-width:480px){.admin-card{padding:16px}.admin-two{grid-template-columns:1fr;gap:0}.admin-lesson-row{align-items:flex-start;flex-direction:column}.admin-lesson-row button{width:100%}}
+
+
+/* LEXORA published course catalog */
+.courses-section{background:#0d172d;padding-top:78px}
+.course-toolbar{max-width:1100px;margin:0 auto 22px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.course-toolbar>span{color:var(--muted);font-size:12px}
+.course-filters{display:flex;gap:8px;flex-wrap:wrap}
+.course-filter{border:1px solid #ffffff25;border-radius:30px;background:#172744;color:#dce5f2;padding:9px 16px;font:700 12px Tajawal}
+.course-filter.active{background:var(--mint);border-color:var(--mint);color:#10233a}
+.course-catalog{max-width:1100px;margin:auto;display:grid;gap:28px}
+.course-level-block{padding:24px;border:1px solid #ffffff18;border-radius:18px;background:#121f38}
+.course-level-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:22px}
+.course-level-heading h3{margin:0;color:var(--mint);font-size:22px}
+.course-level-description,.course-muted{color:var(--muted);font-size:12px}
+.course-unit-block+.course-unit-block{margin-top:24px;padding-top:20px;border-top:1px solid #ffffff17}
+.course-unit-block h4{margin:0 0 14px;font-size:16px}
+.course-lesson-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.course-lesson-card{min-width:0;padding:18px;border:1px solid #ffffff1c;border-radius:14px;background:#1a2b48}
+.course-lesson-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.course-level-pill,.course-plan-pill{font-size:10px;padding:5px 9px;border-radius:20px;background:#75e5c018;color:var(--mint)}
+.course-plan-pill{background:#ffffff12;color:#dce5f2}
+.course-plan-pill.pro{border:1px solid #e4c77b55;color:#e4c77b}
+.course-lesson-card h5{font-size:17px;line-height:1.5;margin:13px 0 5px}
+.course-lesson-meta{font-size:11px;color:var(--muted);margin:0 0 10px}
+.course-lesson-intro{font-size:12px;color:#c2cede;line-height:1.8;max-height:70px;overflow:hidden;white-space:pre-line}
+.course-lesson-details{margin-top:14px;border-top:1px solid #ffffff18;padding-top:12px}
+.course-lesson-details>summary{cursor:pointer;color:var(--mint);font-size:12px;font-weight:700}
+.course-lesson-content{padding-top:12px}
+.course-lesson-content h6{font-size:13px;color:var(--mint);margin:18px 0 8px}
+.course-description-en,.course-description-ar{font-size:12px;color:#d3deeb;line-height:1.9;white-space:pre-line;overflow-wrap:anywhere}
+.course-media-item{display:grid;gap:8px;margin:12px 0;padding:12px;background:#101b35;border-radius:10px}
+.course-media-item strong{font-size:12px}
+.course-media-item video{width:100%;max-height:320px;border-radius:8px;background:#050b17}
+.course-media-item audio{width:100%;max-width:100%}
+.course-source-link{color:var(--mint);font-size:12px;text-decoration:underline}
+.course-word-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.course-word{padding:11px;border:1px solid #ffffff17;border-radius:9px;background:#101b35;display:grid;gap:5px}
+.course-word strong{font:700 14px "DM Sans";direction:ltr;text-align:left;color:white}
+.course-word span,.course-word small,.course-word-example,.course-word-example-ar{font-size:11px;color:#bdc9d9;margin:0}
+.course-word-example{direction:ltr;text-align:left}
+.course-empty,.course-loading,.course-error{text-align:center;padding:30px;color:var(--muted)}
+.course-error{color:#ffaaaa}
+@media(max-width:650px){.course-level-block{padding:15px}.course-level-heading{align-items:flex-start;flex-direction:column}.course-lesson-grid{grid-template-columns:1fr}.course-word-list{grid-template-columns:1fr}.course-lesson-card{padding:15px}.course-media-item video{max-height:230px}}
