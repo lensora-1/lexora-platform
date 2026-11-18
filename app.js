@@ -85,6 +85,9 @@ function updateAuthUI(user) {
   document.getElementById('loginBtn').hidden = signedIn;
   document.getElementById('signupBtn').hidden = signedIn;
   document.getElementById('accountBtn').hidden = !signedIn;
+  const isAdmin = user?.app_metadata?.role === 'admin';
+  document.getElementById('adminOpenBtn').hidden = !isAdmin;
+  if (!isAdmin && document.getElementById('lexoraAdmin')) document.getElementById('lexoraAdmin').hidden = true;
   document.getElementById('logoutBtn').hidden = !signedIn;
   if (user) accountEmail.textContent = user.email || 'حساب LEXORA';
   if (!signedIn && document.getElementById('learnerProfile')) {
@@ -191,14 +194,14 @@ document.getElementById('accountBtn').addEventListener('click', openLearnerProfi
 
 supabase.auth.onAuthStateChange((event, session) => {
   updateAuthUI(session?.user ?? null);
-  if (session?.user) loadLearnerProfile(session.user);
+  if (session?.user) { loadLearnerProfile(session.user); if (session.user.app_metadata?.role === 'admin') loadAdminContent(); }
   if (event === 'PASSWORD_RECOVERY') openModal('updatePassword');
 });
 
 supabase.auth.getSession().then(({ data, error }) => {
   if (!error) {
     updateAuthUI(data.session?.user ?? null);
-    if (data.session?.user) loadLearnerProfile(data.session.user);
+    if (data.session?.user) { loadLearnerProfile(data.session.user); if (data.session.user.app_metadata?.role === 'admin') loadAdminContent(); }
     const params = new URLSearchParams(window.location.hash.slice(1));
     if (params.get('type') === 'signup' && data.session) {
       openModal('account');
@@ -400,3 +403,86 @@ document.getElementById('avatarFile').addEventListener('change', async event => 
     event.target.value = '';
   }
 });
+
+
+// Principal administrator content manager: authorization is enforced by JWT app_metadata + database RLS.
+const adminSection = document.getElementById('lexoraAdmin');
+const adminMessage = document.getElementById('adminMessage');
+function adminNotice(text, error = false) {
+  adminMessage.textContent = text;
+  adminMessage.classList.toggle('error', error);
+}
+function requireAdmin() {
+  return Boolean(activeProfileUser?.app_metadata?.role === 'admin');
+}
+document.getElementById('adminOpenBtn').addEventListener('click', async () => {
+  if (!requireAdmin()) return;
+  adminSection.hidden = false;
+  document.querySelector('main').hidden = true;
+  document.getElementById('learnerProfile').hidden = true;
+  adminSection.scrollIntoView({behavior:'smooth',block:'start'});
+  await loadAdminContent();
+});
+async function loadAdminContent() {
+  if (!requireAdmin()) return;
+  try {
+    const [{data: levels,error:le},{data:units,error:ue},{data:lessons,error:de}] = await Promise.all([
+      supabase.from('course_levels').select('id,code,title_ar,title_en').order('sort_order'),
+      supabase.from('course_units').select('id,level_id,title_ar,title_en').order('sort_order'),
+      supabase.from('lessons').select('id,title_ar,title_en,status,access_plan,unit_id,duration_minutes').order('created_at',{ascending:false}).limit(50)
+    ]);
+    if(le) throw le; if(ue) throw ue; if(de) throw de;
+    const levelSelect=document.getElementById('adminUnitLevel');
+    const unitSelect=document.getElementById('adminLessonUnit');
+    levelSelect.replaceChildren(); unitSelect.replaceChildren();
+    (levels||[]).forEach(level=>levelSelect.add(new Option(level.title_ar+' · '+level.code,level.id)));
+    (units||[]).forEach(unit=>unitSelect.add(new Option(unit.title_ar+' / '+unit.title_en,unit.id)));
+    const list=document.getElementById('adminLessonsList');
+    list.replaceChildren();
+    if(!lessons?.length){list.textContent='لا توجد دروس بعد. ابدأ بإنشاء مستوى ووحدة ثم أضف أول درس.';}
+    (lessons||[]).forEach(lesson=>{
+      const item=document.createElement('article'); item.className='admin-lesson-row';
+      const info=document.createElement('div'); const title=document.createElement('strong'); title.textContent=lesson.title_ar+' · '+lesson.title_en;
+      const meta=document.createElement('small'); meta.textContent=(lesson.status==='published'?'منشور':'مسودة')+' · '+(lesson.access_plan==='pro'?'PRO':'مجاني')+' · '+lesson.duration_minutes+' دقائق';
+      info.append(title,meta);
+      const toggle=document.createElement('button'); toggle.type='button'; toggle.className='btn btn-ghost'; toggle.textContent=lesson.status==='published'?'إلغاء النشر':'نشر';
+      toggle.addEventListener('click',()=>changeLessonStatus(lesson.id,lesson.status==='published'?'draft':'published'));
+      item.append(info,toggle); list.append(item);
+    });
+  } catch(error) {
+    console.error('Admin content load failed',error);
+    adminNotice('تعذر تحميل لوحة المحتوى. تأكد من صلاحية المدير.',true);
+  }
+}
+async function changeLessonStatus(id,status){
+  if(!requireAdmin()) return;
+  const {error}=await supabase.from('lessons').update({status,published_at:status==='published'?new Date().toISOString():null,updated_at:new Date().toISOString()}).eq('id',id);
+  if(error){adminNotice('تعذر تغيير حالة الدرس: '+error.message,true);return;}
+  adminNotice(status==='published'?'تم نشر الدرس.':'أُعيد الدرس إلى المسودات.');
+  await loadAdminContent();
+}
+document.getElementById('adminLevelForm').addEventListener('submit',async event=>{
+  event.preventDefault(); if(!requireAdmin()) return;
+  const code=document.getElementById('adminLevelCode').value;
+  const row={code,title_ar:document.getElementById('adminLevelAr').value.trim(),title_en:document.getElementById('adminLevelEn').value.trim(),description_ar:document.getElementById('adminLevelDesc').value.trim(),sort_order:['zero','A1','A2','B1','B2','C1'].indexOf(code)};
+  const {error}=await supabase.from('course_levels').insert(row);
+  if(error){adminNotice('تعذر حفظ المستوى: '+error.message,true);return;}
+  event.target.reset();adminNotice('تمت إضافة المستوى.');await loadAdminContent();
+});
+document.getElementById('adminUnitForm').addEventListener('submit',async event=>{
+  event.preventDefault();if(!requireAdmin())return;
+  const row={level_id:document.getElementById('adminUnitLevel').value,title_ar:document.getElementById('adminUnitAr').value.trim(),title_en:document.getElementById('adminUnitEn').value.trim()};
+  if(!row.level_id){adminNotice('أضف مستوى أولاً.',true);return;}
+  const {error}=await supabase.from('course_units').insert(row);
+  if(error){adminNotice('تعذر حفظ الوحدة: '+error.message,true);return;}
+  event.target.reset();adminNotice('تمت إضافة الوحدة.');await loadAdminContent();
+});
+document.getElementById('adminLessonForm').addEventListener('submit',async event=>{
+  event.preventDefault();if(!requireAdmin())return;
+  const row={unit_id:document.getElementById('adminLessonUnit').value,title_ar:document.getElementById('adminLessonAr').value.trim(),title_en:document.getElementById('adminLessonEn').value.trim(),summary_ar:document.getElementById('adminLessonSummary').value.trim(),duration_minutes:Number(document.getElementById('adminLessonDuration').value),access_plan:document.getElementById('adminLessonPlan').value,status:document.getElementById('adminLessonStatus').value,published_at:document.getElementById('adminLessonStatus').value==='published'?new Date().toISOString():null};
+  if(!row.unit_id){adminNotice('أضف وحدة أولاً.',true);return;}
+  const {error}=await supabase.from('lessons').insert(row);
+  if(error){adminNotice('تعذر حفظ الدرس: '+error.message,true);return;}
+  event.target.reset();adminNotice('تم إنشاء الدرس بنجاح.');await loadAdminContent();
+});
+document.getElementById('adminRefresh').addEventListener('click',loadAdminContent);
