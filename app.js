@@ -183,16 +183,18 @@ async function signOut() {
 
 document.getElementById('logoutBtn').addEventListener('click', signOut);
 document.getElementById('accountLogoutBtn').addEventListener('click', signOut);
-document.getElementById('accountBtn').addEventListener('click', () => openModal('account'));
+document.getElementById('accountBtn').addEventListener('click', openLearnerProfile);
 
 supabase.auth.onAuthStateChange((event, session) => {
   updateAuthUI(session?.user ?? null);
+  if (session?.user) loadLearnerProfile(session.user);
   if (event === 'PASSWORD_RECOVERY') openModal('updatePassword');
 });
 
 supabase.auth.getSession().then(({ data, error }) => {
   if (!error) {
     updateAuthUI(data.session?.user ?? null);
+    if (data.session?.user) loadLearnerProfile(data.session.user);
     const params = new URLSearchParams(window.location.hash.slice(1));
     if (params.get('type') === 'signup' && data.session) {
       openModal('account');
@@ -226,4 +228,171 @@ document.getElementById('langBtn').addEventListener('click', () => {
 
 document.getElementById('menuBtn').addEventListener('click', () => {
   document.querySelector('.topbar nav').classList.toggle('menu-panel');
+});
+
+
+// LEXORA learner profile
+const profileSection = document.getElementById('learnerProfile');
+const profileForm = document.getElementById('profileForm');
+let activeProfileUser = null;
+
+const levelNames = {
+  zero: ['من الصفر', 'ابدأ بالحروف والأصوات والنطق الأول.'],
+  A1: ['A1 · مبتدئ', 'كوّن جملاً بسيطة واستخدم عبارات الحياة اليومية.'],
+  A2: ['A2 · أساسي', 'طوّر محادثاتك في المواقف المألوفة.'],
+  B1: ['B1 · متوسط', 'عبّر عن أفكارك وتجاربك بثقة أكبر.'],
+  B2: ['B2 · فوق المتوسط', 'وسّع فهمك وطلاقتك في المحادثات.'],
+  C1: ['C1 · متقدم', 'استخدم الإنجليزية بمرونة ودقة.']
+};
+
+function openLearnerProfile() {
+  if (!activeProfileUser) {
+    openModal('login');
+    showMessage('سجّل الدخول لفتح ملفك التعليمي.');
+    return;
+  }
+  profileSection.hidden = false;
+  document.querySelector('main').hidden = true;
+  profileSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  loadLearnerProfile(activeProfileUser);
+}
+document.getElementById('closeProfileBtn').addEventListener('click', () => {
+  profileSection.hidden = true;
+  document.querySelector('main').hidden = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+document.getElementById('continueLearning').addEventListener('click', () => {
+  profileSection.hidden = true;
+  document.querySelector('main').hidden = false;
+});
+function setProfileMessage(text, error = false) {
+  const el = document.getElementById('profileMessage');
+  el.textContent = text;
+  el.classList.toggle('error', error);
+}
+function fillProfile(profile, user) {
+  document.getElementById('profileName').textContent = profile.display_name || 'متعلم LEXORA';
+  document.getElementById('profileHandle').textContent = profile.username ? '@' + profile.username : 'أكمل اسم المستخدم الخاص بك';
+  document.getElementById('profileBioPreview').textContent = profile.bio || 'ابدأ رحلتك في تعلم الإنجليزية خطوة بخطوة.';
+  document.getElementById('profileDisplayName').value = profile.display_name || user.user_metadata?.display_name || '';
+  document.getElementById('profileUsername').value = profile.username || '';
+  document.getElementById('profileBio').value = profile.bio || '';
+  document.getElementById('profileLevel').value = profile.current_level || 'zero';
+  document.getElementById('profileCountry').value = profile.country || '';
+  document.getElementById('profileGoal').value = profile.learning_goal || 'daily';
+  document.getElementById('profileDailyGoal').value = String(profile.daily_goal_minutes || 15);
+  document.getElementById('profileEmail').value = user.email || '';
+  document.querySelectorAll('input[name="interest"]').forEach(input => {
+    input.checked = (profile.interests || []).includes(input.value);
+  });
+  const avatar = document.getElementById('profileAvatar');
+  const fallback = document.getElementById('profileAvatarFallback');
+  if (profile.avatar_url) {
+    avatar.src = profile.avatar_url;
+    avatar.hidden = false;
+    fallback.hidden = true;
+  } else {
+    avatar.hidden = true;
+    fallback.hidden = false;
+  }
+  const level = levelNames[profile.current_level || 'zero'] || levelNames.zero;
+  document.getElementById('currentLevelCard').innerHTML = '<strong></strong><p></p>';
+  document.querySelector('#currentLevelCard strong').textContent = level[0];
+  document.querySelector('#currentLevelCard p').textContent = level[1];
+}
+async function loadLearnerProfile(user) {
+  activeProfileUser = user;
+  try {
+    const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if (error) throw error;
+    let record = profile;
+    if (!record) {
+      const { data, error: insertError } = await supabase.from('profiles')
+        .insert({ id: user.id, display_name: user.user_metadata?.display_name || '', preferred_locale: 'ar' })
+        .select('*').single();
+      if (insertError) throw insertError;
+      record = data;
+    }
+    fillProfile(record, user);
+    const [lessons, words, streak, scores, subscription] = await Promise.all([
+      supabase.from('learning_progress').select('id,is_completed,best_score', { count: 'exact' }).eq('user_id', user.id),
+      supabase.from('vocabulary').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('learning_streaks').select('current_streak').eq('user_id', user.id).maybeSingle(),
+      supabase.from('learning_progress').select('best_score').eq('user_id', user.id).not('best_score', 'is', null),
+      supabase.from('subscriptions').select('status,ends_at').eq('user_id', user.id).eq('status', 'active').order('ends_at', { ascending: false }).limit(1).maybeSingle()
+    ]);
+    if (lessons.error) throw lessons.error;
+    if (words.error) throw words.error;
+    const completed = (lessons.data || []).filter(item => item.is_completed).length;
+    const best = (scores.data || []).reduce((max, item) => Math.max(max, item.best_score || 0), 0);
+    document.getElementById('statLessons').textContent = String(completed);
+    document.getElementById('statWords').textContent = String(words.count || 0);
+    document.getElementById('statStreak').textContent = String(streak.data?.current_streak || 0);
+    document.getElementById('statScore').textContent = best ? best + '%' : '—';
+    document.getElementById('profilePlan').textContent = subscription.data ? 'PRO' : 'FREE';
+  } catch (error) {
+    console.error('LEXORA profile load:', error);
+    setProfileMessage('تعذر تحميل بعض بيانات الملف. تحقق من اتصالك ثم أعد المحاولة.', true);
+  }
+}
+profileForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!activeProfileUser) return;
+  const button = document.getElementById('saveProfileBtn');
+  button.disabled = true;
+  setProfileMessage('جارٍ حفظ بياناتك…');
+  const username = document.getElementById('profileUsername').value.trim().toLowerCase();
+  const interests = [...document.querySelectorAll('input[name="interest"]:checked')].map(input => input.value);
+  const updates = {
+    id: activeProfileUser.id,
+    display_name: document.getElementById('profileDisplayName').value.trim(),
+    username: username || null,
+    bio: document.getElementById('profileBio').value.trim(),
+    current_level: document.getElementById('profileLevel').value,
+    country: document.getElementById('profileCountry').value.trim(),
+    learning_goal: document.getElementById('profileGoal').value,
+    daily_goal_minutes: Number(document.getElementById('profileDailyGoal').value),
+    interests,
+    updated_at: new Date().toISOString()
+  };
+  try {
+    const { data, error } = await supabase.from('profiles').upsert(updates).select('*').single();
+    if (error) throw error;
+    fillProfile(data, activeProfileUser);
+    setProfileMessage('تم حفظ ملفك التعليمي بنجاح.');
+  } catch (error) {
+    console.error('LEXORA profile save:', error);
+    const duplicate = error.code === '23505';
+    setProfileMessage(duplicate ? 'اسم المستخدم مستخدم بالفعل. اختر اسماً آخر.' : 'تعذر حفظ التغييرات: ' + (error.message || 'حاول مرة أخرى.'), true);
+  } finally {
+    button.disabled = false;
+  }
+});
+document.getElementById('avatarFile').addEventListener('change', async event => {
+  const file = event.target.files?.[0];
+  if (!file || !activeProfileUser) return;
+  if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+    setProfileMessage('اختر صورة JPG أو PNG أو WebP بحجم لا يتجاوز 5MB.', true);
+    event.target.value = '';
+    return;
+  }
+  setProfileMessage('جارٍ رفع الصورة…');
+  try {
+    const ext = file.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const path = activeProfileUser.id + '/' + crypto.randomUUID() + '.' + ext;
+    const { error: uploadError } = await supabase.storage.from('lexora-avatars').upload(path, file, { upsert: true, contentType: file.type });
+    if (uploadError) throw uploadError;
+    const { data: publicData } = supabase.storage.from('lexora-avatars').getPublicUrl(path);
+    const { data, error } = await supabase.from('profiles')
+      .update({ avatar_url: publicData.publicUrl, updated_at: new Date().toISOString() })
+      .eq('id', activeProfileUser.id).select('*').single();
+    if (error) throw error;
+    fillProfile(data, activeProfileUser);
+    setProfileMessage('تم تحديث صورتك الشخصية.');
+  } catch (error) {
+    console.error('LEXORA avatar upload:', error);
+    setProfileMessage('تعذر رفع الصورة. حاول مرة أخرى.', true);
+  } finally {
+    event.target.value = '';
+  }
 });
