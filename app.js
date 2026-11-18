@@ -87,6 +87,10 @@ function updateAuthUI(user) {
   document.getElementById('accountBtn').hidden = !signedIn;
   document.getElementById('logoutBtn').hidden = !signedIn;
   if (user) accountEmail.textContent = user.email || 'حساب LEXORA';
+  if (!signedIn && document.getElementById('learnerProfile')) {
+    document.getElementById('learnerProfile').hidden = true;
+    document.querySelector('main').hidden = false;
+  }
 }
 
 document.querySelectorAll('[data-modal]').forEach(button => {
