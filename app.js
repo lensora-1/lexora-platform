@@ -898,3 +898,132 @@ async function loadCourseCatalog() {
   }
 }
 loadCourseCatalog();
+
+
+// LEXORA Play World: original cartoon-style story games.
+(() => {
+  const episodes = [
+    {
+      title:'أول لقاء في الحديقة', label:'الحلقة 01 · A NEW FRIEND', prop:'🌳', caption:'A NEW FRIEND',
+      lines:['Hello! Nice to meet you!','My name is Mia.','What is your name?'],
+      questions:[
+        {before:'Hello! My ',after:' is Mia.',translation:'مرحباً! اسمي ميا.',answer:'name',options:['name','book','cat'],why:'نستخدم name عندما نذكر الاسم: My name is Mia.'},
+        {before:'Hello! ',after:' are you?',translation:'مرحباً! كيف حالك؟',answer:'How',options:['How','Who','Where'],why:'السؤال How are you? يعني: كيف حالك؟'},
+        {before:'I ',after:' Alex.',translation:'أنا أليكس.',answer:'am',options:['am','is','are'],why:'مع الضمير I نستخدم am: I am Alex.'},
+        {before:'Nice to ',after:' you.',translation:'سعيد بلقائك.',answer:'meet',options:['meet','eat','sleep'],why:'العبارة الثابتة هي Nice to meet you.'},
+        {before:'Goodbye! See you ',after:'.',translation:'وداعاً! أراك لاحقاً.',answer:'later',options:['later','apple','blue'],why:'See you later تعني أراك لاحقاً.'}
+      ]
+    },
+    {
+      title:'مفاجأة في المنزل', label:'الحلقة 02 · AT HOME', prop:'🏡', caption:'A SURPRISE AT HOME',
+      lines:['Look! This is my cat.','It is very cute!','I love my little cat.'],
+      questions:[
+        {before:'This is a ',after:'.',translation:'هذه قطة.',answer:'cat',options:['cat','run','happy'],why:'cat اسم حيوان، ونستخدم a قبل الاسم المفرد الذي يبدأ بصوت ساكن.'},
+        {before:'It ',after:' small.',translation:'إنها صغيرة.',answer:'is',options:['is','am','are'],why:'مع it نستخدم is: It is small.'},
+        {before:'I ',after:' a book.',translation:'لدي كتاب.',answer:'have',options:['have','has','is'],why:'مع I نستخدم have: I have a book.'},
+        {before:'The cat is ',after:'.',translation:'القطة سعيدة.',answer:'happy',options:['happy','table','bluely'],why:'happy صفة معناها سعيد، وتصف حالة القطة.'},
+        {before:'It is ',after:' apple.',translation:'إنها تفاحة.',answer:'an',options:['an','a','are'],why:'نستخدم an قبل كلمة apple لأنها تبدأ بصوت حرف متحرك.'}
+      ]
+    },
+    {
+      title:'يوم في المقهى', label:'الحلقة 03 · AT THE CAFE', prop:'☕', caption:'AT THE CAFE',
+      lines:['Can I have a coffee, please?','Of course!','Here you are.'],
+      questions:[
+        {before:'I would like ',after:' coffee.',translation:'أود قهوة.',answer:'a',options:['a','an','are'],why:'coffee اسم مفرد يبدأ بصوت ساكن، لذلك نقول a coffee.'},
+        {before:'Can I ',after:' a tea?',translation:'هل يمكنني الحصول على شاي؟',answer:'have',options:['have','has','am'],why:'بعد Can نستخدم الفعل بصيغته الأساسية: Can I have…?'},
+        {before:'Thank ',after:'!',translation:'شكراً لك!',answer:'you',options:['you','your','yours'],why:'العبارة الصحيحة للشكر هي Thank you.'},
+        {before:'Here ',after:' are.',translation:'ها أنت ذا.',answer:'you',options:['you','is','am'],why:'Here you are عبارة شائعة عند تقديم شيء لشخص.'},
+        {before:'The coffee is ',after:'.',translation:'القهوة ساخنة.',answer:'hot',options:['hot','drink','cup'],why:'hot صفة معناها ساخن، وتصف القهوة.'}
+      ]
+    }
+  ];
+  let currentEpisode = 0, currentQuestion = 0, xp = 0, hearts = 5, correctCount = 0, answered = false;
+  const $ = id => document.getElementById(id);
+  const stage = $('cartoonStage');
+  if (!stage) return;
+  const xpEl=$('gameXp'), heartsEl=$('gameHearts'), stageHearts=$('stageHearts');
+  function syncStats(){xpEl.textContent=String(xp);heartsEl.textContent=String(hearts);stageHearts.textContent=String(hearts);}
+  function openEpisode(index){
+    currentEpisode=index;currentQuestion=0;correctCount=0;answered=false;
+    const ep=episodes[index];
+    $('worldMap').hidden=true;stage.hidden=false;
+    $('stageEpisodeLabel').textContent=ep.label;
+    $('sceneProp').textContent=ep.prop;$('sceneCaption').textContent=ep.caption;
+    $('sceneSpeech').textContent=ep.lines[0];
+    $('sceneCharacterA').className='scene-character scene-character-a character-bounce';
+    $('sceneCharacterB').className='scene-character scene-character-b character-bounce';
+    renderQuestion();
+    stage.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function renderQuestion(){
+    const ep=episodes[currentEpisode], q=ep.questions[currentQuestion];
+    answered=false;
+    $('questionCounter').textContent='السؤال '+(currentQuestion+1)+' من '+ep.questions.length;
+    $('questionProgress').style.width=(currentQuestion/ep.questions.length*100)+'%';
+    $('sentencePrompt').innerHTML='';
+    $('sentencePrompt').append(document.createTextNode(q.before));
+    const blank=document.createElement('b');blank.textContent=' _____ ';$('sentencePrompt').append(blank,document.createTextNode(q.after));
+    $('sentenceTranslation').textContent=q.translation;
+    $('sceneSpeech').textContent=ep.lines[Math.min(currentQuestion,ep.lines.length-1)];
+    $('answerFeedback').hidden=true;$('answerFeedback').replaceChildren();
+    $('nextQuestion').hidden=true;
+    const options=$('answerOptions');options.replaceChildren();
+    q.options.slice().sort(()=>Math.random()-.5).forEach(word=>{
+      const btn=document.createElement('button');btn.type='button';btn.className='answer-option';btn.textContent=word;
+      btn.addEventListener('click',()=>chooseAnswer(word,btn));options.append(btn);
+    });
+    syncStats();
+  }
+  function chooseAnswer(word,button){
+    if(answered)return;answered=true;
+    const q=episodes[currentEpisode].questions[currentQuestion], correct=word===q.answer;
+    const blank=$('sentencePrompt').querySelector('b');blank.textContent=' '+q.answer+' ';blank.classList.add(correct?'blank-correct':'blank-wrong');
+    $('answerOptions').querySelectorAll('button').forEach(b=>{b.disabled=true;if(b.textContent===q.answer)b.classList.add('option-correct');else if(b===button)b.classList.add('option-wrong');});
+    const feedback=$('answerFeedback');feedback.hidden=false;
+    const title=document.createElement('strong');title.textContent=correct?'رائع! إجابة صحيحة 🎉':'قريب جداً! جرّب تذكّر القاعدة 💡';
+    const explanation=document.createElement('p');explanation.textContent=q.why;
+    feedback.append(title,explanation);
+    if(correct){correctCount++;xp+=6;}else{hearts=Math.max(0,hearts-1);}
+    syncStats();
+    $('nextQuestion').textContent=currentQuestion===episodes[currentEpisode].questions.length-1?'إنهاء الحلقة 🏆':'السؤال التالي ←';
+    $('nextQuestion').hidden=false;
+  }
+  async function finishEpisode(){
+    const ep=episodes[currentEpisode],score=Math.round(correctCount/ep.questions.length*100);
+    $('questionProgress').style.width='100%';
+    $('answerOptions').replaceChildren();
+    $('answerFeedback').hidden=false;$('answerFeedback').replaceChildren();
+    const title=document.createElement('strong');title.textContent='انتهت المغامرة! ⭐';
+    const detail=document.createElement('p');detail.textContent='نتيجتك '+score+'% — أجبت بشكل صحيح عن '+correctCount+' من '+ep.questions.length+' جمل.';
+    const reward=document.createElement('p');reward.className='episode-finish-reward';reward.textContent='حصلت على '+(correctCount*6)+' نقطة خبرة في هذه الحلقة.';
+    $('answerFeedback').append(title,detail,reward);
+    $('nextQuestion').hidden=true;
+    if(activeProfileUser?.id){
+      try{
+        const key='cartoon-episode-'+(currentEpisode+1);
+        const {data:old,error:readError}=await supabase.from('learning_progress').select('best_score,is_completed').eq('user_id',activeProfileUser.id).eq('lesson_key',key).maybeSingle();
+        if(readError)throw readError;
+        const {error}=await supabase.from('learning_progress').upsert({
+          user_id:activeProfileUser.id,lesson_key:key,current_stage:2,completed_stages:[1,2],
+          best_score:Math.max(old?.best_score||0,score),is_completed:Boolean(old?.is_completed||score>=60),updated_at:new Date().toISOString()
+        },{onConflict:'user_id,lesson_key'});
+        if(error)throw error;
+        const saved=document.createElement('small');saved.textContent='تم حفظ تقدم الحلقة في حسابك.';$('answerFeedback').append(saved);
+      }catch(err){console.error('Game progress save',err);}
+    }
+    const replay=document.createElement('button');replay.type='button';replay.className='game-primary';replay.textContent='أعد الحلقة';
+    replay.addEventListener('click',()=>openEpisode(currentEpisode));$('answerFeedback').append(replay);
+    const map=document.createElement('button');map.type='button';map.className='game-map-link';map.textContent='العودة إلى عالم المغامرات';
+    map.addEventListener('click',backToMap);$('answerFeedback').append(map);
+  }
+  $('nextQuestion').addEventListener('click',()=>{
+    if(currentQuestion<episodes[currentEpisode].questions.length-1){currentQuestion++;renderQuestion();}
+    else finishEpisode();
+  });
+  function backToMap(){stage.hidden=true;$('worldMap').hidden=false;$('worldMap').scrollIntoView({behavior:'smooth',block:'start'});}
+  $('backToMap').addEventListener('click',backToMap);
+  document.querySelectorAll('.episode-card').forEach(card=>card.addEventListener('click',()=>openEpisode(Number(card.dataset.episode))));
+  $('startAdventure').addEventListener('click',()=>openEpisode(0));
+  $('gameStreak').textContent='0';
+  syncStats();
+})();
