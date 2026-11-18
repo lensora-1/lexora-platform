@@ -118,7 +118,7 @@ form.addEventListener('submit', async event => {
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: 'https://lexora-platform.pages.dev',
           data: { display_name: displayName || null }
         }
       });
@@ -134,7 +134,7 @@ form.addEventListener('submit', async event => {
       closeModal();
     } else if (mode === 'reset') {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin
+        redirectTo: 'https://lexora-platform.pages.dev'
       });
       if (error) throw error;
       showMessage('إذا كان البريد مسجلاً، ستصلك رسالة تحتوي على رابط استعادة كلمة المرور.');
@@ -163,7 +163,7 @@ googleButton.addEventListener('click', async () => {
   try {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin }
+      options: { redirectTo: 'https://lexora-platform.pages.dev' }
     });
     if (error) throw error;
   } catch (error) {
@@ -191,7 +191,19 @@ supabase.auth.onAuthStateChange((event, session) => {
 });
 
 supabase.auth.getSession().then(({ data, error }) => {
-  if (!error) updateAuthUI(data.session?.user ?? null);
+  if (!error) {
+    updateAuthUI(data.session?.user ?? null);
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    if (params.get('type') === 'signup' && data.session) {
+      openModal('account');
+      showMessage('تم تأكيد بريدك الإلكتروني وتفعيل حسابك بنجاح.');
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+    }
+    if (params.get('error')) {
+      openModal('login');
+      showMessage('تعذر تأكيد البريد: ' + (params.get('error_description') || params.get('error')), true);
+    }
+  }
 });
 
 document.getElementById('playBtn').addEventListener('click', () => {
