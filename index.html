@@ -12,10 +12,18 @@
 <body>
 <header class="topbar">
   <a class="brand" href="#"><span class="brand-mark">L<span>▶</span></span><span>LEXORA<small>LEARN ENGLISH. LIVE THE LANGUAGE.</small></span></a>
-  <nav><a href="#worldMap">المغامرات</a><a href="#rewards">طريقة اللعب</a></nav>
+  <nav><a href="#curriculum">الدورات العملية</a><a href="#worldMap">المغامرات</a><a href="#rewards">طريقة اللعب</a></nav>
   <div class="actions"><button class="lang" id="langBtn">EN</button><button class="btn btn-ghost" id="loginBtn" data-modal="login">تسجيل الدخول</button><button class="btn btn-mint" id="signupBtn" data-modal="signup">ابدأ التعلم</button><button class="btn btn-ghost" id="accountBtn" hidden>حسابي</button><button class="btn btn-ghost" id="adminOpenBtn" hidden>إدارة المحتوى</button><button class="btn btn-ghost" id="logoutBtn" hidden>خروج</button><button class="menu" id="menuBtn" aria-label="القائمة">☰</button></div>
 </header>
 <main>
+<section class="section curriculum-section" id="curriculum">
+ <div class="section-heading"><span class="eyebrow">LEXORA PRACTICAL ENGLISH</span><h2>تعلّم الإنجليزية من <em>الحياة الحقيقية.</em></h2><p>مواقف عملية متدرجة، مع ترجمة عربية وشرح لكل إجابة. يحتوي كل قسم على 50 تحدياً على الأقل.</p></div>
+ <div class="curriculum-cards">
+  <article class="curriculum-card daily-cover"><div class="curriculum-cover"><span>EVERYDAY LIFE</span><b>☕ 🏡 🍎 🚗</b></div><div class="curriculum-card-copy"><span class="course-level-pill">المستوى التأسيسي · A1</span><h3>الحياة اليومية</h3><p>التعارف، العائلة، الروتين، الطعام، المنزل، التسوق، المطاعم، الأصدقاء والمواصلات.</p><strong>50 تحدياً</strong><button class="btn btn-mint curriculum-start" data-curriculum="daily">ابدأ القسم ←</button></div></article>
+  <article class="curriculum-card street-cover"><div class="curriculum-cover"><span>STREET & TRANSPORT</span><b>🚦 🚶 🚌 🚘</b></div><div class="curriculum-card-copy"><span class="course-level-pill">المستوى التأسيسي · A1</span><h3>الشارع والمواصلات</h3><p>الشوارع والاتجاهات، إشارات المرور، عبور المشاة، المركبات والمواقف.</p><strong>50 تحدياً</strong><button class="btn btn-mint curriculum-start" data-curriculum="street">ابدأ القسم ←</button></div></article>
+ </div>
+ <div class="curriculum-player" id="curriculumPlayer" hidden><div class="curriculum-player-head"><button class="btn btn-ghost" id="curriculumBack">← الأقسام</button><span id="curriculumUnitLabel">الوحدة</span><span id="curriculumCount">1 / 50</span></div><div class="curriculum-progress"><i id="curriculumProgress"></i></div><span class="eyebrow">CHALLENGE · <span id="curriculumKind">VOCABULARY</span></span><h3 id="curriculumQuestion">Question</h3><p id="curriculumArabic"></p><div class="curriculum-options" id="curriculumOptions"></div><div class="curriculum-feedback" id="curriculumFeedback" hidden></div><button class="btn btn-mint full" id="curriculumNext" hidden>التحدي التالي ←</button></div>
+</section>
 
 <section id="gameWorld" class="game-world">
   <div class="game-welcome">
@@ -73,14 +81,7 @@
   <section class="game-how" id="rewards"><span>🎮</span><div><strong>كيف تلعب وتتعلم؟</strong><p>شاهد القصة، اقرأ الجملة، اختر الكلمة الناقصة، تعلّم من التصحيح، واجمع نقاط الخبرة.</p></div></section>
 </section>
 
-<section class="section curriculum-section" id="curriculum">
- <div class="section-heading"><span class="eyebrow">LEXORA PRACTICAL ENGLISH</span><h2>تعلّم الإنجليزية من <em>الحياة الحقيقية.</em></h2><p>مواقف عملية متدرجة، مع ترجمة عربية وشرح لكل إجابة. يحتوي كل قسم على 50 تحدياً على الأقل.</p></div>
- <div class="curriculum-cards">
-  <article class="curriculum-card daily-cover"><div class="curriculum-cover"><span>EVERYDAY LIFE</span><b>☕ 🏡 🍎 🚗</b></div><div class="curriculum-card-copy"><span class="course-level-pill">المستوى التأسيسي · A1</span><h3>الحياة اليومية</h3><p>التعارف، العائلة، الروتين، الطعام، المنزل، التسوق، المطاعم، الأصدقاء والمواصلات.</p><strong>50 تحدياً</strong><button class="btn btn-mint curriculum-start" data-curriculum="daily">ابدأ القسم ←</button></div></article>
-  <article class="curriculum-card street-cover"><div class="curriculum-cover"><span>STREET & TRANSPORT</span><b>🚦 🚶 🚌 🚘</b></div><div class="curriculum-card-copy"><span class="course-level-pill">المستوى التأسيسي · A1</span><h3>الشارع والمواصلات</h3><p>الشوارع والاتجاهات، إشارات المرور، عبور المشاة، المركبات والمواقف.</p><strong>50 تحدياً</strong><button class="btn btn-mint curriculum-start" data-curriculum="street">ابدأ القسم ←</button></div></article>
- </div>
- <div class="curriculum-player" id="curriculumPlayer" hidden><div class="curriculum-player-head"><button class="btn btn-ghost" id="curriculumBack">← الأقسام</button><span id="curriculumUnitLabel">الوحدة</span><span id="curriculumCount">1 / 50</span></div><div class="curriculum-progress"><i id="curriculumProgress"></i></div><span class="eyebrow">CHALLENGE · <span id="curriculumKind">VOCABULARY</span></span><h3 id="curriculumQuestion">Question</h3><p id="curriculumArabic"></p><div class="curriculum-options" id="curriculumOptions"></div><div class="curriculum-feedback" id="curriculumFeedback" hidden></div><button class="btn btn-mint full" id="curriculumNext" hidden>التحدي التالي ←</button></div>
-</section>\n<section class="hero">
+\n<section class="hero">
   <div class="hero-copy"><div class="eyebrow"><i></i> تعلّم الإنجليزية بطريقة مختلفة</div>
     <h1>لا تحفظ الكلمات فقط،<br><em>عِش اللغة.</em></h1>
     <p>رحلتك لتعلّم الإنجليزية تبدأ من الصفر، عبر مشاهد واقعية وتمارين تفاعلية تساعدك على الفهم والاستماع والتحدث بثقة.</p>
