@@ -155,7 +155,7 @@ body{background:#f4f7ff;color:#18233b}
 .topbar nav a{color:#4c5a73}
 .brand{color:#172542}
 .brand small{color:#8390a7}
-.hero,.courses-section,.stats,#method,.levels,.pro-section{display:none!important}
+/* Removed legacy rule that hid the learning sections after page initialization. */
 .game-world{max-width:1180px;margin:0 auto;padding:30px 24px 70px;direction:rtl}
 .game-welcome{min-height:330px;position:relative;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;padding:35px 44px;border-radius:28px;background:linear-gradient(115deg,#172b54,#355d9b 62%,#68b6d7);color:#fff;box-shadow:0 18px 48px #213f702b}
 .game-welcome-copy{position:relative;z-index:2;max-width:520px}
