@@ -333,3 +333,13 @@ body{background:#f4f7ff;color:#18233b}
 .curriculum-player .curriculum-player-head{color:#e5edf8}
 .curriculum-player .btn-ghost{color:#eaf3ff;background:#263c5c}
 @media(max-width:700px){.curriculum-unit-grid{grid-template-columns:1fr}.curriculum-unit-card{padding:14px}.curriculum-group-heading h3{font-size:18px}}
+
+/* LEXORA refreshed brand header and word-by-word pronunciation */
+.topbar{background:rgba(16,27,53,.97)!important;color:#f7fafc!important;border-bottom:1px solid rgba(117,229,192,.24)!important}
+.topbar .brand,.topbar nav,.topbar nav a,.topbar .actions{color:#f7fafc}
+.topbar nav a{transition:color .2s ease}.topbar nav a:hover{color:var(--mint)}
+.topbar .btn-ghost,.topbar .lang{color:#f7fafc!important;border-color:rgba(117,229,192,.45)!important;background:rgba(255,255,255,.035)}
+.topbar .btn-mint{background:var(--mint)!important;color:#10233a!important}
+.curriculum-word{display:inline;border:0;padding:0 2px;margin:0 1px;background:transparent;color:#f7fafc;font:inherit;font-weight:800;text-decoration:underline;text-decoration-color:var(--mint);text-decoration-thickness:2px;text-underline-offset:5px;cursor:pointer}
+.curriculum-word:hover,.curriculum-word:focus-visible{color:var(--mint);outline:none}
+.curriculum-word-translation{margin:12px 0 18px;padding:10px 14px;border:1px solid rgba(117,229,192,.35);border-radius:10px;background:rgba(117,229,192,.09);color:#baf5e2;font-size:15px;font-weight:700}
