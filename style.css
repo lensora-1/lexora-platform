@@ -293,3 +293,15 @@ body{background:#f4f7ff;color:#18233b}
 .story-audio-tools button.story-audio-play{background:#75e5c0;color:#10233a;border-color:#75e5c0;font-weight:900}
 .story-audio-tools button:focus-visible{outline:3px solid #75e5c0;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.episode-art.art-extra:before,.episode-art.art-extra:after,.episode-art.art-extra b{animation:none}}
+
+/* Distinct animated environments for every story chapter */
+.cartoon-scene[data-scene="museum"]{background:linear-gradient(180deg,#243b63 0%,#b68a55 62%,#49352f 100%)}
+.cartoon-scene[data-scene="station"]{background:linear-gradient(180deg,#86b7ce 0%,#d4e0dc 54%,#596b7c 55%,#26364b 100%)}
+.cartoon-scene[data-scene="beach"]{background:linear-gradient(180deg,#71c9ef 0%,#c2edee 57%,#f3d58c 58%,#d7ad68 100%)}
+.cartoon-scene[data-scene="future"]{background:linear-gradient(180deg,#111d46 0%,#465e9c 55%,#182a4b 56%,#101b35 100%)}
+.cartoon-scene[data-scene="forest"]{background:linear-gradient(180deg,#8cc7a6 0%,#d2dfb1 52%,#386d4d 53%,#173d35 100%)}
+.cartoon-scene[data-scene="restaurant"]{background:linear-gradient(180deg,#d8a56e 0%,#8b5d4d 52%,#49344a 53%,#1c253d 100%)}
+.cartoon-scene[data-scene="airport"]{background:linear-gradient(180deg,#8bc4e8 0%,#dcebf0 55%,#7d8b9d 56%,#34435b 100%)}
+.cartoon-scene[data-scene="museum"] .scene-prop,.cartoon-scene[data-scene="station"] .scene-prop,.cartoon-scene[data-scene="beach"] .scene-prop,.cartoon-scene[data-scene="future"] .scene-prop,.cartoon-scene[data-scene="forest"] .scene-prop,.cartoon-scene[data-scene="restaurant"] .scene-prop,.cartoon-scene[data-scene="airport"] .scene-prop{animation:storyBounce 2.3s ease-in-out infinite;filter:drop-shadow(0 12px 8px #0005)}
+.cartoon-scene[data-scene="future"] .scene-character{filter:drop-shadow(0 0 10px #75e5c088)}
+.cartoon-scene[data-scene="beach"] .scene-sun{background:#ffe6a4;box-shadow:0 0 35px #fff5a5}
