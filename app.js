@@ -1331,8 +1331,9 @@ loadCourseCatalog();
  const XP_KEY_PREFIX='lexora-xp-v1:';
  let userKey='guest',xp=0,ready=false;
  const thresholds=[0,50,120,210,320,450,600,770,960,1170];
- function levelFor(value){let level=1;for(let i=1;i<thresholds.length;i++){if(value>=thresholds[i])level=i+1;else break;}if(value>=thresholds[9]){let remaining=value-thresholds[9],next=11;while(remaining>=250+(next-11)*50){remaining-=250+(next-11)*50;next++;}level=next-1;}return level;}
- function nextThreshold(level){if(level<10)return thresholds[level];let total=thresholds[9];for(let l=11;l<=level;l++)total+=250+(l-11)*50;return total+250+(level-10)*50;}
+ function safeXP(value){const n=Number(value);return Number.isFinite(n)?Math.max(0,Math.min(1000000,Math.floor(n))):0;}
+ function levelFor(value){value=safeXP(value);if(value<1170){let level=1;for(let i=1;i<thresholds.length;i++){if(value>=thresholds[i])level=i+1;else break;}return level;}let remaining=value-1170,level=10,step=250;while(remaining>=step&&level<10000){remaining-=step;level++;step+=50;}return level;}
+ function nextThreshold(level){level=Math.max(1,Math.min(10000,Math.floor(Number(level)||1)));if(level<10)return thresholds[level];let total=1170;for(let l=10;l<level;l++)total+=250+(l-10)*50;return total+250+(level-10)*50;}
  function refresh(){
   const level=levelFor(xp),next=nextThreshold(level),base=level===1?0:(level<=10?thresholds[level-1]:nextThreshold(level-1));
   if(el('gameXp'))el('gameXp').textContent=xp;
@@ -1345,8 +1346,8 @@ loadCourseCatalog();
    else if(el('detectivePlayer').hidden&&el('detectiveFinish').hidden){el('detectiveIntro').hidden=false;}
   }
  }
- async function identify(){try{const result=await supabase.auth.getUser();const id=result?.data?.user?.id;if(id)userKey=id;}catch(e){}try{xp=Number(localStorage.getItem(XP_KEY_PREFIX+userKey)||0);}catch(e){xp=0;}ready=true;refresh();supabase.auth.onAuthStateChange((_event,session)=>{const nextKey=session?.user?.id||'guest';if(nextKey!==userKey){userKey=nextKey;try{xp=Number(localStorage.getItem(XP_KEY_PREFIX+userKey)||0);}catch(e){xp=0;}refresh();}});}
- window.addEventListener('lexora:xp',e=>{if(!ready)return;const amount=Math.max(0,Number(e.detail?.amount)||0);xp+=amount;try{localStorage.setItem(XP_KEY_PREFIX+userKey,String(xp));}catch(e){}refresh();});
+ async function identify(){try{const result=await supabase.auth.getUser();const id=result?.data?.user?.id;if(id)userKey=id;}catch(e){}try{xp=safeXP(localStorage.getItem(XP_KEY_PREFIX+userKey)||0);}catch(e){xp=0;}ready=true;refresh();supabase.auth.onAuthStateChange((_event,session)=>{const nextKey=session?.user?.id||'guest';if(nextKey!==userKey){userKey=nextKey;try{xp=safeXP(localStorage.getItem(XP_KEY_PREFIX+userKey)||0);}catch(e){xp=0;}refresh();}});}
+ window.addEventListener('lexora:xp',e=>{if(!ready)return;const amount=safeXP(e.detail?.amount);xp=safeXP(xp+amount);try{localStorage.setItem(XP_KEY_PREFIX+userKey,String(xp));}catch(e){}refresh();});
  window.LEXORA_ACCOUNT_PROGRESS={getXP:()=>xp,getLevel:()=>levelFor(xp),addXP:amount=>window.dispatchEvent(new CustomEvent('lexora:xp',{detail:{amount}}))};
  identify();
  if(el('detectiveTimer'))el('detectiveTimer').hidden=true;
