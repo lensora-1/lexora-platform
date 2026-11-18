@@ -1300,31 +1300,8 @@ loadCourseCatalog();
 })();
 
 
-// LEXORA horizontal learning worlds, learner XP and gated games.
-(()=>{
- const main=document.querySelector('main');if(!main||main.dataset.swipeReady)return;main.dataset.swipeReady='1';
- const groups=[
-  {id:'storiesPage',title:'عالم القصص',icon:'📖',ids:['gameWorld','cartoonLibrary']},
-  {id:'learningPage',title:'الدروس التعليمية',icon:'🎓',ids:['hero','courses','method','levels','pro','curriculum']},
-  {id:'gamesPage',title:'عالم الألعاب',icon:'🎮',ids:['detectiveGame']}
- ];
- const shell=document.createElement('div');shell.className='learning-swipe-shell';
- const nav=document.createElement('div');nav.className='learning-swipe-nav';nav.setAttribute('aria-label','أقسام LEXORA');
- const track=document.createElement('div');track.className='learning-swipe-track';track.id='learningSwipeTrack';
- groups.forEach((g,index)=>{
-  const page=document.createElement('div');page.className='learning-swipe-page';page.id=g.id;
-  const button=document.createElement('button');button.type='button';button.className='learning-swipe-tab'+(index===0?' active':'');button.dataset.page=String(index);button.innerHTML='<span>'+g.icon+'</span><b>'+g.title+'</b>';nav.append(button);
-  g.ids.forEach(id=>{const node=document.getElementById(id);if(node)page.append(node);});
-  track.append(page);
- });
- const stats=document.querySelector('main > .stats');if(stats)document.getElementById('learningPage').insertBefore(stats,document.getElementById('method'));
- const hint=document.createElement('p');hint.className='swipe-hint';hint.textContent='اسحب الشاشة يميناً أو يساراً للتنقل بين الأقسام ←';shell.append(nav,track,hint);main.prepend(shell);
- const tabs=[...nav.querySelectorAll('button')];
- function setPage(i){const page=track.children[Math.max(0,Math.min(groups.length-1,i))];page.scrollIntoView({behavior:'smooth',block:'nearest',inline:'start'});tabs.forEach((b,j)=>b.classList.toggle('active',j===i));}
- tabs.forEach((b,i)=>b.addEventListener('click',()=>setPage(i)));
- let scrollTick=false;track.addEventListener('scroll',()=>{if(scrollTick)return;scrollTick=true;requestAnimationFrame(()=>{const center=track.getBoundingClientRect().left+track.clientWidth/2;let best=0,distance=Infinity;[...track.children].forEach((p,i)=>{const r=p.getBoundingClientRect(),d=Math.abs((r.left+r.right)/2-center);if(d<distance){distance=d;best=i;}});tabs.forEach((b,j)=>b.classList.toggle('active',j===best));scrollTick=false;});},{passive:true});
- document.querySelectorAll('.topbar nav a').forEach(a=>a.addEventListener('click',e=>{const target=document.querySelector(a.getAttribute('href'));if(!target)return;const page=target.closest('.learning-swipe-page');if(page){e.preventDefault();setPage([...track.children].indexOf(page));setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'start'}),260);}}));
-})();
+// Horizontal swipe layout disabled: keep all learning sections in normal vertical document flow.
+;
 
 (()=>{
  const el=id=>document.getElementById(id);
