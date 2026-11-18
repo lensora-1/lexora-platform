@@ -415,13 +415,9 @@ function adminNotice(text, error = false) {
 function requireAdmin() {
   return Boolean(activeProfileUser?.app_metadata?.role === 'admin');
 }
-document.getElementById('adminOpenBtn').addEventListener('click', async () => {
+document.getElementById('adminOpenBtn').addEventListener('click', () => {
   if (!requireAdmin()) return;
-  adminSection.hidden = false;
-  document.querySelector('main').hidden = true;
-  document.getElementById('learnerProfile').hidden = true;
-  adminSection.scrollIntoView({behavior:'smooth',block:'start'});
-  await loadAdminContent();
+  window.location.href = '/admin.html';
 });
 async function loadAdminContent() {
   if (!requireAdmin()) return;
