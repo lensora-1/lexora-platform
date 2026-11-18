@@ -1112,7 +1112,7 @@ loadCourseCatalog();
  function start(i){
   epIndex=i;qIndex=0;correct=0;hearts=5;answered=false;const ep=episodes[i];
   $('worldMap').hidden=true;stage.hidden=false;$('stageEpisodeLabel').textContent=ep.label;
-  $('sceneProp').textContent=ep.prop;$('sceneCaption').textContent=ep.caption;$('sceneSpeech').textContent=ep.voice;
+  $('sceneProp').textContent=ep.prop;$('sceneCaption').textContent=ep.caption;$('sceneSpeech').textContent=ep.voice;$('cartoonScene').dataset.scene=ep.scene||'park';
   $('sceneCharacterA').className='scene-character scene-character-a character-bounce';$('sceneCharacterB').className='scene-character scene-character-b character-bounce';
   const intro=$('answerFeedback');intro.hidden=false;intro.replaceChildren();
   const h=document.createElement('strong');h.textContent='🎬 '+ep.title;
@@ -1128,7 +1128,7 @@ loadCourseCatalog();
   const prompt=$('sentencePrompt');prompt.replaceChildren();prompt.append(document.createTextNode(q.before));
   const blank=document.createElement('b');blank.textContent=' _____ ';prompt.append(blank,document.createTextNode(q.after));
   $('sentenceTranslation').textContent=q.translation;
-  $('sceneSpeech').textContent=q.kind==='Listening'?q.translation+' — Listen and choose the meaning.':q.before+' _____ '+q.after;
+  $('sceneSpeech').textContent=q.kind==='Listening'?q.before:q.before+' '+q.answer+' '+q.after;
   $('answerFeedback').hidden=true;$('answerFeedback').replaceChildren();$('nextQuestion').hidden=true;
   const opts=$('answerOptions');opts.replaceChildren();
   [...q.options].sort(()=>Math.random()-.5).forEach(word=>{const b=document.createElement('button');b.type='button';b.className='answer-option';b.textContent=word;b.onclick=()=>answer(word,b);opts.append(b);});
