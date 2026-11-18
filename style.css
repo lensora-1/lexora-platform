@@ -368,3 +368,21 @@ body{background:#f4f7ff;color:#18233b}
 .games-level-gate{max-width:850px;margin:30px auto;padding:32px 22px;text-align:center;border:1px solid #75e5c077;border-radius:20px;background:linear-gradient(145deg,#1a2d4a,#111e35);color:#fff}
 .games-level-gate[hidden]{display:none}.games-level-gate>span{font-size:45px}.games-level-gate h3{color:#75e5c0;font-size:23px}.games-level-gate p,.games-level-gate small{display:block;color:#c5d3e5;line-height:1.8}.games-level-gate strong{display:block;margin:14px;color:#fff}
 @media(max-width:650px){.learning-swipe-nav{justify-content:flex-start;overflow-x:auto}.learning-swipe-tab{padding:10px 13px;font-size:12px}.learning-swipe-tab b{font-size:11px}.game-stats-row{flex-wrap:wrap}.account-level-badge{flex:1 1 100%;grid-template-columns:auto auto}}
+
+
+/* Visibility repair: restore learning sections inside the swipe pages */
+.learning-swipe-page #hero{display:grid!important}
+.learning-swipe-page #courses,
+.learning-swipe-page #method,
+.learning-swipe-page #levels{display:block!important}
+.learning-swipe-page .stats{display:grid!important}
+.learning-swipe-page #pro{display:grid!important}
+.learning-swipe-page #curriculum{display:block!important}
+.learning-swipe-page #gameWorld,
+.learning-swipe-page #cartoonLibrary,
+.learning-swipe-page #detectiveGame{display:block}
+@media(max-width:760px){
+ .learning-swipe-page #hero{display:grid!important}
+ .learning-swipe-page .stats{display:grid!important}
+ .learning-swipe-page #pro{display:grid!important}
+}
