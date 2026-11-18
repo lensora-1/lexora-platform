@@ -1192,7 +1192,7 @@ loadCourseCatalog();
  }
  function renderClickableSentence(q){
   const full=q[0].replace(/___|_{2,}/g,q[1]),target=$('curriculumQuestion');target.replaceChildren();
-  full.split(/(\\s+)/).forEach(part=>{
+  full.split(/(\s+)/).forEach(part=>{
    if(!part.trim()){target.append(document.createTextNode(part));return;}
    const clean=part.toLowerCase().replace(/^[^a-z]+|[^a-z']+$/g,'');
    const span=document.createElement('button');span.type='button';span.className='curriculum-word';span.textContent=part;
