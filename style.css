@@ -253,3 +253,32 @@ body{background:#f4f7ff;color:#18233b}
 @media(max-width:760px){
  .game-world{padding:17px 14px 45px}.game-welcome{grid-template-columns:1fr;min-height:0;padding:26px 22px 0;gap:0}.game-welcome-copy{padding-bottom:12px}.game-welcome h1{font-size:31px}.game-welcome p{font-size:13px}.game-hero-art{height:190px}.cartoon-character{transform:scale(.78);transform-origin:bottom}.hero-max{transform:scale(.7)}.game-stats-row{gap:8px;margin:14px 0 30px}.game-stat{padding:11px 9px;gap:7px}.stat-emoji{width:34px;height:34px;font-size:18px}.game-stat strong{font-size:17px}.game-stat small{font-size:9px}.game-section-head{align-items:start;flex-direction:column}.game-section-head h2{font-size:23px}.episode-path{grid-template-columns:1fr;gap:12px}.episode-card{display:grid;grid-template-columns:108px 1fr;grid-template-rows:auto auto auto;column-gap:12px;align-items:center}.episode-art{grid-row:1/5;height:105px;margin:0}.episode-art b{font-size:49px}.episode-art i{font-size:25px}.episode-number{align-self:end}.episode-card strong{font-size:14px}.episode-card small{font-size:10px}.episode-reward{justify-self:start;margin-top:6px}.cartoon-game-stage{padding:10px}.cartoon-scene{height:230px}.scene-character{transform:scale(.75);transform-origin:bottom}.scene-character-b{transform:scale(.75)}.speech-bubble{font-size:12px;max-width:82%;top:14px}.scene-prop{font-size:55px}.game-question-card{padding:15px 12px}.answer-options{gap:7px}.answer-option{padding:12px 5px;font-size:15px}.game-how{align-items:start;padding:15px}
 }
+
+
+/* STORY QUEST: episode covers, cinematic scene motion and audio controls */
+.episode-card{position:relative;overflow:hidden;padding:11px}
+.episode-art{height:190px;border-radius:15px;isolation:isolate}
+.episode-art:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,#14223a45);z-index:-1}
+.art-park{background:radial-gradient(circle at 80% 18%,#fff5b4 0 7%,transparent 7.5%),linear-gradient(160deg,#83d8f3 0 52%,#70c98e 52% 100%)}
+.art-park b{font-size:96px;animation:coverSway 4s ease-in-out infinite}
+.art-home{background:linear-gradient(160deg,#fbdc9f,#fff0d6 60%,#cf9666)}
+.art-home b{font-size:92px;animation:coverFloat 3s ease-in-out infinite}
+.art-cafe{background:linear-gradient(160deg,#a5d8f5,#e6efff 58%,#b88f7c)}
+.art-cafe b{font-size:95px;animation:coverFloat 3s ease-in-out infinite}
+.episode-card:nth-child(3) .episode-art{background:linear-gradient(160deg,#182e59,#466d9c 60%,#b7d7e9)}
+.episode-card:nth-child(3) .episode-art b{font-size:90px}
+.episode-art i{filter:drop-shadow(0 5px 3px #17243c44);animation:coverFloat 2.8s ease-in-out infinite}
+.episode-card:focus-visible,.answer-option:focus-visible{outline:3px solid #46bd96;outline-offset:3px}
+.story-audio-tools{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;padding:12px}
+.story-audio-tools button{border:1px solid #dce6f1;background:#f4f8ff;color:#2c4263;border-radius:11px;padding:10px 14px;font:700 12px inherit;cursor:pointer}
+.story-audio-tools button:hover{background:#e5f8f0;border-color:#71d6b2}
+.character-bounce{animation:storyBounce 1.6s ease-in-out infinite}
+#sceneCharacterB.character-bounce{animation-delay:.35s}
+#sceneSpeech{animation:bubbleIn .35s ease-out}
+.cartoon-scene{box-shadow:inset 0 -20px 45px #244c3420}
+@keyframes storyBounce{0%,100%{translate:0 0}50%{translate:0 -13px}}
+@keyframes bubbleIn{from{opacity:0;transform:translate(-50%,8px) scale(.94)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+@keyframes coverSway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes coverFloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
+.answer-feedback small{display:block;margin-top:8px}
+@media(max-width:760px){.episode-art{height:120px}.episode-card{min-height:140px}.story-audio-tools button{flex:1 1 30%;font-size:11px}}
