@@ -62,7 +62,20 @@
     </div>
   </div>
 </section>
-\n<footer><a class="brand" href="#"><span class="brand-mark">L<span>▶</span></span><span>LEXORA<small>LEARN ENGLISH. LIVE THE LANGUAGE.</small></span></a><span>© 2026 LEXORA. جميع الحقوق محفوظة.</span></footer>
+\n
+<section id="lexoraAdmin" class="admin-section" hidden>
+ <div class="admin-shell">
+  <header class="admin-heading"><div><span class="eyebrow">LEXORA CONTROL CENTER</span><h1>لوحة إدارة <em>المحتوى</em></h1><p>أنشئ المنهج والدروس، راجعها، ثم انشرها للمتعلمين.</p></div><span class="admin-secure">🔒 المدير الرئيسي</span></header>
+  <div class="admin-notice">المحتوى الذي تحفظه كمسودة لن يظهر للمتعلمين. النشر متاح لحساب المدير الرئيسي فقط.</div>
+  <div class="admin-grid">
+   <form class="admin-card" id="adminLevelForm"><h2>1. إضافة مستوى</h2><label>رمز المستوى<select id="adminLevelCode"><option value="zero">من الصفر</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option></select></label><label>اسم المستوى بالعربية<input id="adminLevelAr" required maxlength="100" placeholder="المستوى التأسيسي"></label><label>اسم المستوى بالإنجليزية<input id="adminLevelEn" required maxlength="100" placeholder="Beginner Zero"></label><label>وصف مختصر<textarea id="adminLevelDesc" rows="2" maxlength="400"></textarea></label><button class="btn btn-mint full">حفظ المستوى</button></form>
+   <form class="admin-card" id="adminUnitForm"><h2>2. إضافة وحدة</h2><label>المستوى<select id="adminUnitLevel" required></select></label><label>اسم الوحدة بالعربية<input id="adminUnitAr" required maxlength="120"></label><label>اسم الوحدة بالإنجليزية<input id="adminUnitEn" required maxlength="120"></label><button class="btn btn-mint full">حفظ الوحدة</button></form>
+   <form class="admin-card" id="adminLessonForm"><h2>3. إنشاء درس</h2><label>الوحدة<select id="adminLessonUnit" required></select></label><label>عنوان الدرس بالعربية<input id="adminLessonAr" required maxlength="160"></label><label>عنوان الدرس بالإنجليزية<input id="adminLessonEn" required maxlength="160"></label><label>وصف الدرس<textarea id="adminLessonSummary" rows="2" maxlength="500"></textarea></label><div class="admin-two"><label>المدة بالدقائق<input id="adminLessonDuration" type="number" min="1" max="240" value="10"></label><label>نوع الوصول<select id="adminLessonPlan"><option value="free">مجاني</option><option value="pro">PRO</option></select></label></div><label>حالة الدرس<select id="adminLessonStatus"><option value="draft">مسودة</option><option value="published">نشر الآن</option></select></label><button class="btn btn-mint full">حفظ الدرس</button></form>
+   <div class="admin-card admin-list-card"><div class="admin-list-head"><h2>الدروس المضافة</h2><button type="button" class="btn btn-ghost" id="adminRefresh">تحديث</button></div><div id="adminLessonsList" class="admin-lessons-list">جارٍ تحميل المحتوى…</div></div>
+  </div>
+  <p id="adminMessage" class="auth-message" role="status"></p>
+ </div>
+</section>\n<footer><a class="brand" href="#"><span class="brand-mark">L<span>▶</span></span><span>LEXORA<small>LEARN ENGLISH. LIVE THE LANGUAGE.</small></span></a><span>© 2026 LEXORA. جميع الحقوق محفوظة.</span></footer>
 <div class="modal-backdrop" id="modal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="close" id="closeModal" type="button" aria-label="إغلاق">×</button><span class="eyebrow">مرحباً بك في LEXORA</span><h2 id="modalTitle">أنشئ حسابك وابدأ التعلم</h2><p id="authHint">أنشئ حساباً مجانياً لحفظ تقدمك وكلماتك.</p>
   <form id="authForm">
     <label id="displayNameWrap">الاسم<input id="displayNameInput" type="text" autocomplete="name" maxlength="80" placeholder="اسمك"></label>
