@@ -10,6 +10,70 @@ const $ = id => document.getElementById(id);
 let currentUser = null;
 let currentProfile = null;
 let authMode = 'login';
+const GAME_SAVE_KEYS = ['lexora_xp','lexora_done','lexora_coins','lexora_progress_v2','lexora_hearts','lexora_mistakes','lexora_island','lexora_pet','lexora_decor','lexora_cards','lexora_skills'];
+let syncTimer = null;
+let syncQueue = Promise.resolve();
+let syncInProgress = false;
+
+function collectGameSave() {
+  const data = {};
+  for (const key of GAME_SAVE_KEYS) {
+    const value = localStorage.getItem(key);
+    if (value !== null) data[key] = value;
+  }
+  return data;
+}
+
+function restoreGameSave(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return;
+  for (const key of GAME_SAVE_KEYS) {
+    if (typeof data[key] === 'string') localStorage.setItem(key, data[key]);
+  }
+  localStorage.setItem('lexora_cloud_sync_at', String(Date.now()));
+  window.dispatchEvent(new Event('lexora:cloud-restored'));
+}
+
+async function syncGameProgress(user, force = false) {
+  if (!user || syncInProgress) return;
+  syncInProgress = true;
+  try {
+    const { data: remote, error } = await supabase.from('user_game_saves')
+      .select('save_data,updated_at').eq('user_id', user.id).maybeSingle();
+    if (error) throw error;
+    const localStamp = Number(localStorage.getItem('lexora_cloud_sync_at') || 0);
+    const remoteStamp = remote?.updated_at ? Date.parse(remote.updated_at) : 0;
+    if (remote && !force && remoteStamp > localStamp) {
+      restoreGameSave(remote.save_data);
+      paintStats();
+      setMessage('profileMessage', 'تمت استعادة تقدمك المحفوظ من حسابك.');
+      return;
+    }
+    const save = collectGameSave();
+    const payload = { user_id: user.id, save_data: save, updated_at: new Date().toISOString() };
+    const { error: saveError } = await supabase.from('user_game_saves')
+      .upsert(payload, { onConflict: 'user_id' });
+    if (saveError) throw saveError;
+    localStorage.setItem('lexora_cloud_sync_at', String(Date.now()));
+    if (remote) setMessage('profileMessage', 'تمت مزامنة تقدم الألعاب مع حسابك.');
+  } catch (error) {
+    console.error('LEXORA game progress sync failed:', error);
+    setMessage('profileMessage', 'تعذرت مزامنة التقدم حالياً؛ سيبقى محفوظاً على هذا الجهاز.', true);
+  } finally {
+    syncInProgress = false;
+  }
+}
+
+function queueGameProgressSync() {
+  if (!currentUser) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    const user = currentUser;
+    syncQueue = syncQueue.then(() => syncGameProgress(user, true));
+  }, 900);
+}
+
+window.addEventListener('lexora:progress', queueGameProgressSync);
+window.addEventListener('lexora:cloud-restored', paintStats);
 
 function setMessage(id, message, isError = false) {
   const el = $(id);
@@ -300,10 +364,12 @@ supabase.auth.onAuthStateChange((_event, session) => {
   currentUser = session?.user || null;
   if (!currentUser) currentProfile = null;
   updateProfileButton();
+  if (currentUser) setTimeout(() => syncGameProgress(currentUser), 0);
 });
 
 const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 if (!sessionError) {
   currentUser = sessionData.session?.user || null;
   updateProfileButton();
+  if (currentUser) await syncGameProgress(currentUser);
 }
