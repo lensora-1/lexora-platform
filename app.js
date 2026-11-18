@@ -34,7 +34,8 @@ function setBusy(busy) {
   googleButton.disabled = busy;
   submitButton.textContent = busy ? 'يرجى الانتظار…' : (
     mode === 'login' ? 'تسجيل الدخول' :
-    mode === 'reset' ? 'إرسال رابط الاستعادة' : 'إنشاء الحساب'
+    mode === 'reset' ? 'إرسال رابط الاستعادة' :
+    mode === 'updatePassword' ? 'حفظ كلمة المرور الجديدة' : 'إنشاء الحساب'
   );
 }
 function setMode(nextMode) {
@@ -47,6 +48,7 @@ function setMode(nextMode) {
   nameWrap.hidden = nextMode !== 'signup';
   emailWrap.hidden = nextMode === 'updatePassword';
   passwordWrap.hidden = nextMode === 'reset';
+  emailInput.required = nextMode !== 'updatePassword';
   passwordInput.required = nextMode !== 'reset';
   passwordInput.autocomplete = nextMode === 'signup' || nextMode === 'updatePassword' ? 'new-password' : 'current-password';
   title.textContent = nextMode === 'login' ? 'سجّل الدخول إلى حسابك' :
