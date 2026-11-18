@@ -1335,6 +1335,7 @@ loadCourseCatalog();
  function nextThreshold(level){if(level<10)return thresholds[level];let total=thresholds[9];for(let l=11;l<=level;l++)total+=250+(l-11)*50;return total+250+(level-10)*50;}
  function refresh(){
   const level=levelFor(xp),next=nextThreshold(level),base=level===1?0:(level<=10?thresholds[level-1]:nextThreshold(level-1));
+  if(el('gameXp'))el('gameXp').textContent=xp;
   let badge=el('accountLevelBadge');if(!badge){badge=document.createElement('div');badge.id='accountLevelBadge';badge.className='account-level-badge';const stats=document.querySelector('.game-stats-row');if(stats)stats.append(badge);}
   badge.innerHTML='<strong>LV '+level+'</strong><span>'+xp+' XP</span><i><b style="width:'+Math.max(0,Math.min(100,((xp-base)/(next-base))*100))+'%"></b></i><small>'+(next-xp)+' XP للمستوى التالي</small>';
   const game=el('detectiveGame');if(game){
