@@ -695,10 +695,17 @@ function renderLessonExercise(container, lesson) {
     result.append(courseNode('p', '', 'أجبت إجابة صحيحة عن ' + score + ' من ' + exercise.questions.length + ' أسئلة. درجة الاجتياز: ' + (exercise.pass_score ?? 75) + '%.'));
     if (activeProfileUser?.id) {
       try {
+        const { data: previous, error: readError } = await supabase.from('learning_progress')
+          .select('best_score,is_completed,completed_stages').eq('user_id', activeProfileUser.id)
+          .eq('lesson_key', lesson.id).maybeSingle();
+        if (readError) throw readError;
+        const bestScore = Math.max(previous?.best_score || 0, percent);
+        const isCompleted = Boolean(previous?.is_completed || passed);
         const { error } = await supabase.from('learning_progress').upsert({
           user_id: activeProfileUser.id, lesson_key: lesson.id,
-          current_stage: passed ? 2 : 1, completed_stages: passed ? [1, 2] : [1],
-          best_score: percent, is_completed: passed, updated_at: new Date().toISOString()
+          current_stage: isCompleted ? 2 : 1,
+          completed_stages: isCompleted ? [1, 2] : [1],
+          best_score: bestScore, is_completed: isCompleted, updated_at: new Date().toISOString()
         }, { onConflict: 'user_id,lesson_key' });
         if (error) throw error;
         result.append(courseNode('small', 'exercise-saved', passed ? 'تم حفظ إكمال الدرس في ملفك التعليمي.' : 'تم حفظ نتيجتك. أعد المحاولة لتحسينها.'));
