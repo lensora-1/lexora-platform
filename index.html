@@ -121,8 +121,8 @@ const lexoraProgress=JSON.parse(localStorage.getItem('lexora_progress_v2')||'{}'
 let gameMode='practice',stageIndex=0,heartState=JSON.parse(localStorage.getItem('lexora_hearts')||'{"count":5,"at":Date.now()}');
 function saveProgress(){localStorage.setItem('lexora_progress_v2',JSON.stringify(lexoraProgress));}
 function gameProgress(id){return lexoraProgress[id]||(lexoraProgress[id]={unlocked:1,stages:{},resume:0,best:0,played:0});}
-function hearts(){let now=Date.now(),elapsed=Math.floor((now-(heartState.at||now))/1800000);if(elapsed>0){heartState.count=Math.min(5,(heartState.count||0)+elapsed);heartState.at=(heartState.at||now)+elapsed*1800000;localStorage.setItem('lexora_hearts',JSON.stringify(heartState));}return heartState.count;}
-function spendHeart(){hearts();if(heartState.count<=0)return false;heartState.count--;if(heartState.count<5&&!heartState.at)heartState.at=Date.now();localStorage.setItem('lexora_hearts',JSON.stringify(heartState));return true;}
+function hearts(){let now=Date.now(),elapsed=Math.floor((now-(heartState.at||now))/1800000);if(elapsed>0){heartState.count=Math.min(5,(heartState.count||0)+elapsed);heartState.at=heartState.count===5?now:(heartState.at||now)+elapsed*1800000;localStorage.setItem('lexora_hearts',JSON.stringify(heartState));}return heartState.count;}
+function spendHeart(){hearts();if(heartState.count<=0)return false;if(heartState.count===5)heartState.at=Date.now();heartState.count--;localStorage.setItem('lexora_hearts',JSON.stringify(heartState));return true;}
 function questionFor(id,n){
  const w=lexoraWords[n],d=lexoraWords[(n+17)%lexoraWords.length],e=lexoraWords[(n+39)%lexoraWords.length];
  if(id==='vocab')return {type:'choice',prompt:'ما معنى الكلمة التالية؟',display:w[0],answer:w[1],opts:[w[1],d[1],e[1],'غير معروف']};
@@ -176,8 +176,8 @@ function playQuestion(){
 }
 function finishStage(){
  const p=gameProgress(session.id),id=session.id,stage=session.stage,score=session.score,stars=score>=9?3:score>=7?2:score>=5?1:0;
- p.stages[stage]={done:stars>0,score,stars,mode:session.mode,completedAt:Date.now()};if(stars>0)p.unlocked=Math.max(p.unlocked,Math.min(10,stage+1));p.best=Math.max(p.best,score);p.resume=stars>0?stage*10:(stage-1)*10;saveProgress();
- if(stars>0){xp+=score*10;coins+=score*2;done+=1;localStorage.setItem('lexora_xp',xp);localStorage.setItem('lexora_done',done);persistExtra();renderStats();renderExtra();}
+ const previous=p.stages[stage]||{};const firstChallenge=stars>0&&session.mode==='challenge'&&!previous.challengeRewarded;p.stages[stage]={done:stars>0||!!previous.done,score:Math.max(score,previous.score||0),stars:Math.max(stars,previous.stars||0),mode:session.mode,challengeRewarded:!!previous.challengeRewarded||firstChallenge,completedAt:Date.now()};if(stars>0)p.unlocked=Math.max(p.unlocked,Math.min(10,stage+1));p.best=Math.max(p.best,score);p.resume=stars>0?stage*10:(stage-1)*10;saveProgress();
+ if(firstChallenge){xp+=score*10;coins+=score*2;done+=1;localStorage.setItem('lexora_xp',xp);localStorage.setItem('lexora_done',done);persistExtra();renderStats();renderExtra();}
  const status=stars?'حصلت على '+stars+' من 3 نجوم':'لم تحصل على نجمة بعد، أعد المرحلة لتحسين نتيجتك.';
  open('نتيجة المرحلة','<div class="prompt">'+(stars?'🏆':'💪')+' '+score+'/10</div><p class="question" style="text-align:center">'+status+'</p><p class="question" style="text-align:center">+'+(stars?score*10:0)+' XP · +'+(stars?score*2:0)+' عملة ذهبية</p><div class="actions"><button class="primary" id="stageAgain">إعادة المرحلة</button><button class="secondary" id="stageList">المراحل</button>'+(stage<10&&stars?'<button class="secondary" id="nextStage">المرحلة التالية</button>':'')+'</div>');
  $('stageAgain').onclick=()=>startStage(id,stage);$('stageList').onclick=()=>openStagePicker(id);if($('nextStage'))$('nextStage').onclick=()=>startStage(id,stage+1);
