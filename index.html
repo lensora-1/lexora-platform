@@ -13,7 +13,7 @@
 <header class="topbar">
   <a class="brand" href="#"><span class="brand-mark">L<span>▶</span></span><span>LEXORA<small>LEARN ENGLISH. LIVE THE LANGUAGE.</small></span></a>
   <nav><a href="#levels">المستويات</a><a href="#method">طريقة التعلم</a><a href="#pro">PRO</a></nav>
-  <div class="actions"><button class="lang" id="langBtn">EN</button><button class="btn btn-ghost" data-modal="login">تسجيل الدخول</button><button class="btn btn-mint" data-modal="signup">ابدأ التعلم</button><button class="menu" id="menuBtn" aria-label="القائمة">☰</button></div>
+  <div class="actions"><button class="lang" id="langBtn">EN</button><button class="btn btn-ghost" id="loginBtn" data-modal="login">تسجيل الدخول</button><button class="btn btn-mint" id="signupBtn" data-modal="signup">ابدأ التعلم</button><button class="btn btn-ghost" id="accountBtn" hidden>حسابي</button><button class="btn btn-ghost" id="logoutBtn" hidden>خروج</button><button class="menu" id="menuBtn" aria-label="القائمة">☰</button></div>
 </header>
 <main>
 <section class="hero">
@@ -38,6 +38,19 @@
 <section class="pro-section" id="pro"><div><span class="eyebrow">ارتقِ بتجربتك</span><h2>تعلّم أكثر مع <em>LEXORA PRO.</em></h2><p>افتح المحتوى المتقدم واستمتع بتجربة تعلم بلا إعلانات.</p><ul><li>✓ الوصول إلى المحتوى المتقدم</li><li>✓ تجربة خالية من الإعلانات</li><li>✓ أدوات تعلم ومراجعة متقدمة</li></ul><button class="btn btn-mint btn-large" data-modal="signup">اكتشف PRO — 5 د.أ / شهرياً</button></div><div class="pro-art"><div class="pro-orbit">LX</div><span>PRO</span></div></section>
 </main>
 <footer><a class="brand" href="#"><span class="brand-mark">L<span>▶</span></span><span>LEXORA<small>LEARN ENGLISH. LIVE THE LANGUAGE.</small></span></a><span>© 2026 LEXORA. جميع الحقوق محفوظة.</span></footer>
-<div class="modal-backdrop" id="modal"><div class="modal"><button class="close" id="closeModal">×</button><span class="eyebrow">مرحباً بك في LEXORA</span><h2 id="modalTitle">أنشئ حسابك وابدأ التعلم</h2><p>واجهة تجريبية — ربط الحسابات سيتم في مرحلة إعداد الخادم.</p><label>البريد الإلكتروني<input type="email" placeholder="name@example.com"></label><label>كلمة المرور<input type="password" placeholder="••••••••"></label><button class="btn btn-mint full" id="demoSubmit">متابعة</button><button class="google full" id="googleBtn">◎ المتابعة باستخدام Google</button><small class="disclaimer">هذه النسخة للعرض فقط ولا ترسل أو تحفظ بيانات الدخول.</small></div></div>
-<script src="app.js"></script>
+<div class="modal-backdrop" id="modal"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="close" id="closeModal" type="button" aria-label="إغلاق">×</button><span class="eyebrow">مرحباً بك في LEXORA</span><h2 id="modalTitle">أنشئ حسابك وابدأ التعلم</h2><p id="authHint">أنشئ حساباً مجانياً لحفظ تقدمك وكلماتك.</p>
+  <form id="authForm">
+    <label id="displayNameWrap">الاسم<input id="displayNameInput" type="text" autocomplete="name" maxlength="80" placeholder="اسمك"></label>
+    <label>البريد الإلكتروني<input id="emailInput" type="email" autocomplete="email" required placeholder="name@example.com"></label>
+    <label id="passwordWrap">كلمة المرور<input id="passwordInput" type="password" autocomplete="current-password" minlength="8" required placeholder="8 أحرف على الأقل"></label>
+    <button class="btn btn-mint full" id="authSubmit" type="submit">إنشاء الحساب</button>
+  </form>
+  <button class="text-button" id="forgotPasswordBtn" type="button" hidden>نسيت كلمة المرور؟</button>
+  <button class="google full" id="googleBtn" type="button">◎ المتابعة باستخدام Google</button>
+  <button class="text-button" id="modeSwitch" type="button">لديك حساب؟ سجّل الدخول</button>
+  <div id="accountPanel" hidden><p id="accountEmail"></p><button class="btn btn-mint full" id="accountLogoutBtn" type="button">تسجيل الخروج</button></div>
+  <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+  <small class="disclaimer">لن نطلب منك مشاركة كلمة المرور مع أي شخص.</small>
+</div></div>
+<script type="module" src="app.js"></script>
 </body></html>
