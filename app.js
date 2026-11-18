@@ -511,6 +511,7 @@ function renderInteractiveTranscript(panel, player, tokens, transcript) {
     if (transcript?.transcript_text) {
       const transcriptText = courseNode('pre', 'transcript-full-text', transcript.transcript_text);
       wordArea.append(transcriptText);
+      if (transcript.source_name) wordArea.append(courseNode('small', 'course-muted', 'النص الأصلي: ' + transcript.source_name));
       const actions = courseNode('div', 'transcript-actions');
       const download = courseNode('button', 'btn btn-ghost', 'تنزيل التفريغ النصي TXT');
       download.type = 'button';
