@@ -1,1 +1,187 @@
-const modal=document.getElementById('modal');const title=document.getElementById('modalTitle');document.querySelectorAll('[data-modal]').forEach(btn=>btn.addEventListener('click',()=>{title.textContent=btn.dataset.modal==='login'?'سجّل الدخول إلى حسابك':'أنشئ حسابك وابدأ التعلم';modal.classList.add('show')}));document.getElementById('closeModal').addEventListener('click',()=>modal.classList.remove('show'));modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show')});document.getElementById('demoSubmit').addEventListener('click',()=>alert('هذه نسخة استعراضية فقط. تسجيل الحسابات سيُفعّل بعد ربط الخادم.'));document.getElementById('googleBtn').addEventListener('click',()=>alert('تسجيل Google غير مفعّل في النسخة الاستعراضية.'));document.getElementById('playBtn').addEventListener('click',()=>alert('سيتم إضافة الفيديو التعريفي الأصلي عند تجهيز المحتوى المرئي.'));document.getElementById('langBtn').addEventListener('click',()=>{const en=document.documentElement.lang==='ar';document.documentElement.lang=en?'en':'ar';document.documentElement.dir=en?'ltr':'rtl';document.getElementById('langBtn').textContent=en?'AR':'EN';document.querySelector('.hero-copy h1').innerHTML=en?'Don’t just memorize words,<br><em>live the language.</em>':'لا تحفظ الكلمات فقط،<br><em>عِش اللغة.</em>';document.querySelector('.hero-copy>p').textContent=en?'Your English journey starts from zero, with realistic scenes and interactive practice to build confidence.':'رحلتك لتعلّم الإنجليزية تبدأ من الصفر، عبر مشاهد واقعية وتمارين تفاعلية تساعدك على الفهم والاستماع والتحدث بثقة.'});document.getElementById('menuBtn').addEventListener('click',()=>{let nav=document.querySelector('.topbar nav');nav.classList.toggle('menu-panel')});
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://xozfbhmilefynqipdpvo.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_O_1pQ-PuFP6i4VJMa3YVeA_Mepk8KRI';
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+});
+
+const modal = document.getElementById('modal');
+const title = document.getElementById('modalTitle');
+const hint = document.getElementById('authHint');
+const form = document.getElementById('authForm');
+const nameWrap = document.getElementById('displayNameWrap');
+const nameInput = document.getElementById('displayNameInput');
+const emailInput = document.getElementById('emailInput');
+const passwordWrap = document.getElementById('passwordWrap');
+const passwordInput = document.getElementById('passwordInput');
+const submitButton = document.getElementById('authSubmit');
+const googleButton = document.getElementById('googleBtn');
+const forgotButton = document.getElementById('forgotPasswordBtn');
+const switchButton = document.getElementById('modeSwitch');
+const message = document.getElementById('authMessage');
+const accountPanel = document.getElementById('accountPanel');
+const accountEmail = document.getElementById('accountEmail');
+let mode = 'signup';
+
+function showMessage(text, isError = false) {
+  message.textContent = text;
+  message.classList.toggle('error', isError);
+}
+function setBusy(busy) {
+  submitButton.disabled = busy;
+  googleButton.disabled = busy;
+  submitButton.textContent = busy ? 'يرجى الانتظار…' : (
+    mode === 'login' ? 'تسجيل الدخول' :
+    mode === 'reset' ? 'إرسال رابط الاستعادة' : 'إنشاء الحساب'
+  );
+}
+function setMode(nextMode) {
+  mode = nextMode;
+  accountPanel.hidden = nextMode !== 'account';
+  form.hidden = nextMode === 'account';
+  googleButton.hidden = nextMode === 'reset' || nextMode === 'account';
+  forgotButton.hidden = nextMode !== 'login';
+  switchButton.hidden = nextMode === 'reset' || nextMode === 'account';
+  nameWrap.hidden = nextMode !== 'signup';
+  passwordWrap.hidden = nextMode === 'reset';
+  passwordInput.required = nextMode !== 'reset';
+  passwordInput.autocomplete = nextMode === 'signup' ? 'new-password' : 'current-password';
+  title.textContent = nextMode === 'login' ? 'سجّل الدخول إلى حسابك' :
+    nextMode === 'reset' ? 'استعادة كلمة المرور' :
+    nextMode === 'account' ? 'حسابك في LEXORA' : 'أنشئ حسابك وابدأ التعلم';
+  hint.textContent = nextMode === 'login' ? 'أدخل بياناتك للعودة إلى رحلتك التعليمية.' :
+    nextMode === 'reset' ? 'سنرسل إلى بريدك رابطاً آمناً لإعادة تعيين كلمة المرور.' :
+    nextMode === 'account' ? 'أنت مسجل الدخول بهذا الحساب.' :
+    'أنشئ حساباً مجانياً لحفظ تقدمك وكلماتك.';
+  switchButton.textContent = nextMode === 'login' ? 'ليس لديك حساب؟ أنشئ حساباً' : 'لديك حساب؟ سجّل الدخول';
+  showMessage('');
+  setBusy(false);
+}
+function openModal(nextMode = 'signup') {
+  setMode(nextMode);
+  modal.classList.add('show');
+  if (nextMode !== 'account') emailInput.focus();
+}
+function closeModal() {
+  modal.classList.remove('show');
+  showMessage('');
+}
+function updateAuthUI(user) {
+  const signedIn = Boolean(user);
+  document.getElementById('loginBtn').hidden = signedIn;
+  document.getElementById('signupBtn').hidden = signedIn;
+  document.getElementById('accountBtn').hidden = !signedIn;
+  document.getElementById('logoutBtn').hidden = !signedIn;
+  if (user) accountEmail.textContent = user.email || 'حساب LEXORA';
+}
+
+document.querySelectorAll('[data-modal]').forEach(button => {
+  button.addEventListener('click', () => openModal(button.dataset.modal));
+});
+document.getElementById('closeModal').addEventListener('click', closeModal);
+modal.addEventListener('click', event => {
+  if (event.target === modal) closeModal();
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') closeModal();
+});
+switchButton.addEventListener('click', () => setMode(mode === 'login' ? 'signup' : 'login'));
+forgotButton.addEventListener('click', () => setMode('reset'));
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  showMessage('');
+  setBusy(true);
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+  try {
+    if (mode === 'signup') {
+      const displayName = nameInput.value.trim();
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { display_name: displayName || null } }
+      });
+      if (error) throw error;
+      if (data.session) {
+        closeModal();
+        showMessage('');
+      } else {
+        showMessage('تم إنشاء طلب التسجيل. افحص بريدك الإلكتروني واضغط رابط التأكيد لتفعيل الحساب.');
+      }
+    } else if (mode === 'login') {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      closeModal();
+    } else if (mode === 'reset') {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) throw error;
+      showMessage('إذا كان البريد مسجلاً، ستصلك رسالة تحتوي على رابط استعادة كلمة المرور.');
+    }
+  } catch (error) {
+    const safeMessages = {
+      'Invalid login credentials': 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+      'Email not confirmed': 'يرجى تأكيد بريدك الإلكتروني أولاً من الرسالة التي وصلتك.',
+      'User already registered': 'هذا البريد مسجل مسبقاً. سجّل الدخول بدلاً من إنشاء حساب جديد.',
+      'Password should be at least 6 characters': 'كلمة المرور قصيرة جداً.'
+    };
+    showMessage(safeMessages[error.message] || error.message || 'تعذر إكمال العملية. حاول مرة أخرى.', true);
+  } finally {
+    setBusy(false);
+  }
+});
+
+googleButton.addEventListener('click', async () => {
+  showMessage('');
+  googleButton.disabled = true;
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) throw error;
+  } catch (error) {
+    showMessage('تسجيل Google يحتاج إلى تفعيل مزوّد Google وإضافة مفاتيحه في إعدادات Supabase.', true);
+    googleButton.disabled = false;
+  }
+});
+
+async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    showMessage('تعذر تسجيل الخروج. حاول مرة أخرى.', true);
+    return;
+  }
+  closeModal();
+}
+document.getElementById('logoutBtn').addEventListener('click', signOut);
+document.getElementById('accountLogoutBtn').addEventListener('click', signOut);
+document.getElementById('accountBtn').addEventListener('click', () => openModal('account'));
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  updateAuthUI(session?.user ?? null);
+});
+supabase.auth.getSession().then(({ data, error }) => {
+  if (!error) updateAuthUI(data.session?.user ?? null);
+});
+
+document.getElementById('playBtn').addEventListener('click', () => {
+  showMessage('الفيديو التعريفي الأصلي سيُضاف عند تجهيز المحتوى المرئي.');
+  openModal('signup');
+});
+document.getElementById('langBtn').addEventListener('click', () => {
+  const english = document.documentElement.lang === 'ar';
+  document.documentElement.lang = english ? 'en' : 'ar';
+  document.documentElement.dir = english ? 'ltr' : 'rtl';
+  document.getElementById('langBtn').textContent = english ? 'AR' : 'EN';
+  document.querySelector('.hero-copy h1').innerHTML = english
+    ? 'Don’t just memorize words,<br><em>live the language.</em>'
+    : 'لا تحفظ الكلمات فقط،<br><em>عِش اللغة.</em>';
+  document.querySelector('.hero-copy>p').textContent = english
+    ? 'Your English journey starts from zero, with realistic scenes and interactive practice to build confidence.'
+    : 'رحلتك لتعلّم الإنجليزية تبدأ من الصفر، عبر مشاهد واقعية وتمارين تفاعلية تساعدك على الفهم والاستماع والتحدث بثقة.';
+});
+document.getElementById('menuBtn').addEventListener('click', () => {
+  document.querySelector('.topbar nav').classList.toggle('menu-panel');
+});
