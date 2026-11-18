@@ -498,7 +498,63 @@ function courseNode(tag, className, value) {
   return node;
 }
 
-function renderCourseMedia(container, mediaRows) {
+function renderInteractiveTranscript(panel, player, tokens) {
+  const wrap = courseNode('div', 'interactive-transcript');
+  const heading = courseNode('div', 'transcript-heading');
+  heading.append(courseNode('strong', '', 'النص التفاعلي'));
+  heading.append(courseNode('small', '', 'اضغط على أي كلمة لترى معناها'));
+  const wordArea = courseNode('div', 'transcript-words');
+  const translation = courseNode('div', 'transcript-translation');
+  translation.setAttribute('aria-live', 'polite');
+  translation.append(courseNode('small', '', 'ترجمة الكلمة'));
+  const selected = courseNode('strong', '', 'اضغط على كلمة للبدء');
+  const pronunciation = courseNode('span', '', '');
+  translation.append(selected, pronunciation);
+  wrap.append(heading, wordArea, translation);
+  panel.append(wrap);
+
+  if (!tokens?.length) {
+    wordArea.append(courseNode('p', 'course-muted', 'النص المتزامن لهذا الفيديو قيد الإعداد. ستظهر الكلمات هنا بعد إضافة التفريغ وتوقيت كل كلمة.'));
+    return;
+  }
+  let activeIndex = -1;
+  const buttons = tokens.map((token, index) => {
+    const button = courseNode('button', 'transcript-word', token.token_text);
+    button.type = 'button';
+    button.setAttribute('aria-label', token.token_text + ' — اضغط لعرض الترجمة');
+    button.addEventListener('click', () => {
+      selected.textContent = token.translation_ar;
+      pronunciation.textContent = token.token_text;
+      player.currentTime = token.start_ms / 1000;
+      buttons.forEach((node, i) => node.classList.toggle('active', i === index));
+      activeIndex = index;
+    });
+    wordArea.append(button);
+    return button;
+  });
+  const syncWord = () => {
+    const now = player.currentTime * 1000;
+    let found = -1;
+    for (let i = 0; i < tokens.length; i++) {
+      if (now >= tokens[i].start_ms && now < tokens[i].end_ms) { found = i; break; }
+    }
+    if (found !== activeIndex && found >= 0) {
+      activeIndex = found;
+      buttons.forEach((node, i) => node.classList.toggle('active', i === found));
+      selected.textContent = tokens[found].translation_ar;
+      pronunciation.textContent = tokens[found].token_text;
+      if (buttons[found]) buttons[found].scrollIntoView({block:'nearest',inline:'nearest'});
+    }
+  };
+  player.addEventListener('timeupdate', syncWord);
+  player.addEventListener('seeked', syncWord);
+  player.addEventListener('ended', () => {
+    buttons.forEach(node => node.classList.remove('active'));
+    activeIndex = -1;
+  });
+}
+
+function renderCourseMedia(container, mediaRows, transcriptByMedia = {}) {
   if (!mediaRows?.length) {
     container.append(courseNode('p', 'course-muted', 'لا تتوفر مادة مرئية أو صوتية لهذا الدرس حالياً.'));
     return;
@@ -509,13 +565,18 @@ function renderCourseMedia(container, mediaRows) {
     const label = courseNode('strong', '', media.caption || (media.media_type === 'video' ? 'مشاهدة الدرس' : 'استمع إلى الدرس'));
     item.append(label);
     if (media.media_type === 'video') {
+      const learningLayout = courseNode('div', 'video-learning-layout');
       const player = document.createElement('video');
       player.controls = true;
       player.preload = 'metadata';
       player.playsInline = true;
       player.src = media.external_url;
       player.setAttribute('aria-label', media.caption || 'فيديو الدرس');
-      item.append(player);
+      const transcriptPanel = courseNode('aside', 'video-transcript-panel');
+      transcriptPanel.setAttribute('aria-label', 'النص الإنجليزي التفاعلي والترجمة العربية');
+      learningLayout.append(player, transcriptPanel);
+      renderInteractiveTranscript(transcriptPanel, player, transcriptByMedia[media.id] || []);
+      item.append(learningLayout);
     } else if (media.media_type === 'audio') {
       const player = document.createElement('audio');
       player.controls = true;
@@ -580,7 +641,7 @@ function renderCourseCatalog() {
         }
         const mediaHeading = courseNode('h6', '', 'الفيديو والاستماع');
         content.append(mediaHeading);
-        renderCourseMedia(content, lesson.media || []);
+        renderCourseMedia(content, lesson.media || [], lesson.transcriptByMedia || {});
         if (lesson.vocabulary?.length) {
           content.append(courseNode('h6', '', 'المفردات'));
           const words = courseNode('div', 'course-word-list');
@@ -621,7 +682,7 @@ async function loadCourseCatalog() {
     if (lessonsResult.error) throw lessonsResult.error;
     const lessons = lessonsResult.data || [];
     const ids = lessons.map(lesson => lesson.id);
-    let media = [], vocabulary = [];
+    let media = [], vocabulary = [], transcriptTokens = [];
     if (ids.length) {
       const [mediaResult, vocabularyResult] = await Promise.all([
         supabase.from('lesson_media').select('id,lesson_id,media_type,external_url,language,caption,sort_order').in('lesson_id', ids).order('sort_order'),
@@ -631,6 +692,12 @@ async function loadCourseCatalog() {
       if (vocabularyResult.error) throw vocabularyResult.error;
       media = mediaResult.data || [];
       vocabulary = vocabularyResult.data || [];
+      const mediaIds = media.map(item => item.id);
+      if (mediaIds.length) {
+        const transcriptResult = await supabase.from('lesson_transcript_tokens').select('id,media_id,sequence,token_text,translation_ar,start_ms,end_ms,speaker').in('media_id', mediaIds).order('sequence');
+        if (transcriptResult.error) throw transcriptResult.error;
+        transcriptTokens = transcriptResult.data || [];
+      }
     }
     courseCatalogData = (levelsResult.data || []).map(level => ({
       ...level,
@@ -639,6 +706,7 @@ async function loadCourseCatalog() {
         lessons: lessons.filter(lesson => lesson.unit_id === unit.id).map(lesson => ({
           ...lesson,
           media: media.filter(item => item.lesson_id === lesson.id),
+          transcriptByMedia: Object.fromEntries(media.filter(item => item.lesson_id === lesson.id).map(item => [item.id, transcriptTokens.filter(token => token.media_id === item.id)])),
           vocabulary: vocabulary.filter(item => item.lesson_id === lesson.id)
         }))
       }))
