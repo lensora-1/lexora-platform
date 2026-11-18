@@ -626,6 +626,95 @@ function renderCourseMedia(container, mediaRows, transcriptByMedia = {}) {
   });
 }
 
+function renderLessonExercise(container, lesson) {
+  const exercise = lesson.exercise;
+  if (!exercise?.questions?.length) return;
+  const panel = courseNode('section', 'lesson-exercise');
+  const intro = courseNode('div', 'exercise-intro');
+  intro.append(courseNode('span', 'course-level-pill', 'تدريب تفاعلي'));
+  intro.append(courseNode('h6', '', exercise.title_ar || 'اختبر فهمك'));
+  intro.append(courseNode('p', 'course-muted', 'أجب عن الأسئلة بالترتيب. بعد كل إجابة ستعرف النتيجة وسببها.'));
+  const start = courseNode('button', 'btn btn-mint exercise-start', 'ابدأ الاختبار · ' + exercise.questions.length + ' أسئلة');
+  start.type = 'button';
+  intro.append(start);
+  panel.append(intro);
+  const stage = courseNode('div', 'exercise-stage');
+  stage.hidden = true;
+  panel.append(stage);
+  container.append(panel);
+  let index = 0, score = 0;
+  function showQuestion() {
+    stage.replaceChildren();
+    const question = exercise.questions[index];
+    const progress = courseNode('div', 'exercise-progress');
+    progress.append(courseNode('span', '', 'السؤال ' + (index + 1) + ' من ' + exercise.questions.length));
+    const track = courseNode('div', 'exercise-progress-track');
+    const fill = courseNode('span', '');
+    fill.style.width = ((index / exercise.questions.length) * 100) + '%';
+    track.append(fill); progress.append(track); stage.append(progress);
+    stage.append(courseNode('p', 'exercise-question-en', question.question_en));
+    stage.append(courseNode('h6', 'exercise-question-ar', question.question_ar));
+    const choices = courseNode('div', 'exercise-choices');
+    question.options.forEach(option => {
+      const choice = courseNode('button', 'exercise-choice');
+      choice.type = 'button'; choice.dataset.optionId = option.id;
+      choice.append(courseNode('span', 'exercise-choice-mark', ''));
+      choice.append(courseNode('span', '', option.option_ar));
+      if (option.option_en && option.option_en !== option.option_ar) choice.append(courseNode('small', 'exercise-choice-en', option.option_en));
+      choice.addEventListener('click', () => {
+        if (choices.dataset.answered === 'true') return;
+        choices.dataset.answered = 'true';
+        const correct = Boolean(option.is_correct);
+        if (correct) score++;
+        choices.querySelectorAll('button').forEach(button => {
+          button.disabled = true;
+          const selectedOption = question.options.find(item => item.id === button.dataset.optionId);
+          if (selectedOption?.is_correct) button.classList.add('correct');
+          else if (button === choice) button.classList.add('incorrect');
+        });
+        const feedback = courseNode('div', 'exercise-feedback ' + (correct ? 'success' : 'retry'));
+        feedback.append(courseNode('strong', '', correct ? 'إجابة صحيحة! أحسنت.' : 'ليست الإجابة الصحيحة، تعلّم من التوضيح:'));
+        feedback.append(courseNode('p', '', question.explanation_ar || 'راجع الشرح ثم حاول مرة أخرى.'));
+        stage.append(feedback);
+        const next = courseNode('button', 'btn btn-mint exercise-next', index === exercise.questions.length - 1 ? 'عرض نتيجتي' : 'السؤال التالي');
+        next.type = 'button';
+        next.addEventListener('click', () => { index++; if (index < exercise.questions.length) showQuestion(); else finishExercise(); });
+        stage.append(next);
+      });
+      choices.append(choice);
+    });
+    stage.append(choices);
+  }
+  async function finishExercise() {
+    const percent = Math.round((score / exercise.questions.length) * 100);
+    const passed = percent >= (exercise.pass_score ?? 75);
+    stage.replaceChildren();
+    const result = courseNode('div', 'exercise-result ' + (passed ? 'passed' : 'not-passed'));
+    result.append(courseNode('span', 'exercise-result-score', percent + '%'));
+    result.append(courseNode('h6', '', passed ? 'ممتاز! أتقنت هذا التدريب.' : 'بداية جيدة — راجع الشرح وأعد المحاولة.'));
+    result.append(courseNode('p', '', 'أجبت إجابة صحيحة عن ' + score + ' من ' + exercise.questions.length + ' أسئلة. درجة الاجتياز: ' + (exercise.pass_score ?? 75) + '%.'));
+    if (activeProfileUser?.id) {
+      try {
+        const { error } = await supabase.from('learning_progress').upsert({
+          user_id: activeProfileUser.id, lesson_key: lesson.id,
+          current_stage: passed ? 2 : 1, completed_stages: passed ? [1, 2] : [1],
+          best_score: percent, is_completed: passed, updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,lesson_key' });
+        if (error) throw error;
+        result.append(courseNode('small', 'exercise-saved', passed ? 'تم حفظ إكمال الدرس في ملفك التعليمي.' : 'تم حفظ نتيجتك. أعد المحاولة لتحسينها.'));
+      } catch (error) {
+        console.error('LEXORA progress save:', error);
+        result.append(courseNode('small', 'exercise-save-error', 'تعذر حفظ النتيجة الآن. حاول مرة أخرى بعد التأكد من اتصالك.'));
+      }
+    } else result.append(courseNode('small', 'exercise-save-error', 'سجّل الدخول لحفظ نتيجتك ومتابعة تقدمك.'));
+    const retry = courseNode('button', 'btn btn-ghost exercise-retry', 'إعادة الاختبار');
+    retry.type = 'button';
+    retry.addEventListener('click', () => { index = 0; score = 0; showQuestion(); });
+    result.append(retry); stage.append(result);
+  }
+  start.addEventListener('click', () => { intro.hidden = true; stage.hidden = false; showQuestion(); });
+}
+
 function renderCourseCatalog() {
   if (!courseCatalog) return;
   courseCatalog.replaceChildren();
@@ -687,6 +776,7 @@ function renderCourseCatalog() {
           });
           content.append(words);
         }
+        if (lesson.exercise) renderLessonExercise(content, lesson);
         details.append(content);
         card.append(top, title, meta, summary, details);
         lessonGrid.append(card);
@@ -713,7 +803,7 @@ async function loadCourseCatalog() {
     if (lessonsResult.error) throw lessonsResult.error;
     const lessons = lessonsResult.data || [];
     const ids = lessons.map(lesson => lesson.id);
-    let media = [], vocabulary = [], transcriptTokens = [], fullTranscripts = [];
+    let media = [], vocabulary = [], transcriptTokens = [], fullTranscripts = [], exercises = [], exerciseQuestions = [], exerciseOptions = [];
     if (ids.length) {
       const [mediaResult, vocabularyResult] = await Promise.all([
         supabase.from('lesson_media').select('id,lesson_id,media_type,external_url,language,caption,sort_order').in('lesson_id', ids).order('sort_order'),
@@ -723,6 +813,26 @@ async function loadCourseCatalog() {
       if (vocabularyResult.error) throw vocabularyResult.error;
       media = mediaResult.data || [];
       vocabulary = vocabularyResult.data || [];
+      const exerciseResult = await supabase.from('lesson_exercises')
+        .select('id,lesson_id,title_ar,title_en,exercise_type,pass_score,sort_order').in('lesson_id', ids).order('sort_order');
+      if (exerciseResult.error) throw exerciseResult.error;
+      exercises = exerciseResult.data || [];
+      const exerciseIds = exercises.map(item => item.id);
+      if (exerciseIds.length) {
+        const questionResult = await supabase.from('exercise_questions')
+          .select('id,exercise_id,question_ar,question_en,explanation_ar,sort_order')
+          .in('exercise_id', exerciseIds).order('sort_order');
+        if (questionResult.error) throw questionResult.error;
+        exerciseQuestions = questionResult.data || [];
+        const questionIds = exerciseQuestions.map(item => item.id);
+        if (questionIds.length) {
+          const optionResult = await supabase.from('exercise_options')
+            .select('id,question_id,option_ar,option_en,is_correct,sort_order')
+            .in('question_id', questionIds).order('sort_order');
+          if (optionResult.error) throw optionResult.error;
+          exerciseOptions = optionResult.data || [];
+        }
+      }
       const mediaIds = media.map(item => item.id);
       if (mediaIds.length) {
         const [tokenResult, fullTranscriptResult] = await Promise.all([
@@ -746,7 +856,14 @@ async function loadCourseCatalog() {
             tokens: transcriptTokens.filter(token => token.media_id === item.id),
             transcript: fullTranscripts.find(row => row.media_id === item.id) || null
           }])),
-          vocabulary: vocabulary.filter(item => item.lesson_id === lesson.id)
+          vocabulary: vocabulary.filter(item => item.lesson_id === lesson.id),
+          exercise: (() => {
+            const row = exercises.filter(item => item.lesson_id === lesson.id).sort((a,b) => a.sort_order-b.sort_order)[0];
+            if (!row) return null;
+            return { ...row, questions: exerciseQuestions.filter(q => q.exercise_id === row.id).map(q => ({
+              ...q, options: exerciseOptions.filter(o => o.question_id === q.id)
+            })) };
+          })()
         }))
       }))
     }));
