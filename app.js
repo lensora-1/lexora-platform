@@ -937,14 +937,14 @@ loadCourseCatalog();
       ]
     }
   ];
-  let currentEpisode = 0, currentQuestion = 0, xp = 0, hearts = 5, correctCount = 0, answered = false;
+  let currentEpisode = 0, currentQuestion = 0, xp = 0, hearts = 5, correctCount = 0, answered = false;\n  const completedEpisodes = new Set();
   const $ = id => document.getElementById(id);
   const stage = $('cartoonStage');
   if (!stage) return;
   const xpEl=$('gameXp'), heartsEl=$('gameHearts'), stageHearts=$('stageHearts');
   function syncStats(){xpEl.textContent=String(xp);heartsEl.textContent=String(hearts);stageHearts.textContent=String(hearts);}
   function openEpisode(index){
-    currentEpisode=index;currentQuestion=0;correctCount=0;answered=false;
+    currentEpisode=index;currentQuestion=0;correctCount=0;answered=false;hearts=5;
     const ep=episodes[index];
     $('worldMap').hidden=true;stage.hidden=false;
     $('stageEpisodeLabel').textContent=ep.label;
@@ -989,7 +989,7 @@ loadCourseCatalog();
     $('nextQuestion').hidden=false;
   }
   async function finishEpisode(){
-    const ep=episodes[currentEpisode],score=Math.round(correctCount/ep.questions.length*100);
+    const ep=episodes[currentEpisode],score=Math.round(correctCount/ep.questions.length*100);\n    completedEpisodes.add(currentEpisode);$('gameStreak').textContent=String(completedEpisodes.size);
     $('questionProgress').style.width='100%';
     $('answerOptions').replaceChildren();
     $('answerFeedback').hidden=false;$('answerFeedback').replaceChildren();
