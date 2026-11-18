@@ -89,6 +89,8 @@ let cardLevels=JSON.parse(localStorage.getItem('lexora_cards')||'{"apple":1,"qui
 let skillScores=JSON.parse(localStorage.getItem('lexora_skills')||'{"vocabulary":0,"grammar":0,"listening":0,"reading":0,"conversation":0}');
 function persistExtra(){localStorage.setItem('lexora_coins',coins);localStorage.setItem('lexora_island',islandLevel);localStorage.setItem('lexora_pet',JSON.stringify(pet));localStorage.setItem('lexora_decor',decor);localStorage.setItem('lexora_cards',JSON.stringify(cardLevels));localStorage.setItem('lexora_skills',JSON.stringify(skillScores));}
 function renderExtra(){
+ if(!$('mistakeReview')){document.querySelector('.featuregrid').insertAdjacentHTML('beforeend','<article class="featurecard"><h3>📝 دفتر الأخطاء</h3><p>راجع الأسئلة التي أخطأت فيها لتثبيت المعلومة.</p><div class="featureactions"><button class="smallbtn primarysmall" id="mistakeReview">مراجعة أخطائي ('+lexoraMistakes.length+')</button></div></article>');$('mistakeReview').onclick=()=>{if(!lexoraMistakes.length){open('دفتر الأخطاء','<p class="question">ممتاز! لا توجد أخطاء محفوظة حالياً.</p>');return}let items=lexoraMistakes.slice(0,20);open('مراجعة الأخطاء','<p class="question">آخر الأسئلة التي تحتاج إلى مراجعتها:</p>'+items.map((m,i)=>'<div class="featurecard" style="margin:8px 0;padding:12px"><b>'+(i+1)+'. '+m.prompt+'</b><p>'+m.display+'</p><p style="color:#16845f">الإجابة: '+m.answer+'</p></div>').join('')+'<div class="actions"><button class="primary" id="clearMistakes">مسح سجل الأخطاء</button><button class="secondary" id="closeMistakes">إغلاق</button></div>');$('clearMistakes').onclick=()=>{lexoraMistakes.length=0;localStorage.setItem('lexora_mistakes','[]');close();renderExtra()};$('closeMistakes').onclick=close;};}
+
  $('coins').textContent=coins;$('islandLevel').textContent='مستوى الجزيرة: '+islandLevel+' · '+(islandLevel>=5?'جزيرة مزدهرة':'تحتاج '+(5-islandLevel)+' تطويرات أخرى');
  $('islandTree').textContent=islandLevel>=4?'🌳':'🌴';$('islandHome').textContent=islandLevel>=3?'🏰':'🏡';$('islandDecor').textContent=['🌼','🌷','🌸','✨'][decor%4];
  $('petAvatar').textContent=pet.emoji;$('petName').textContent=pet.name;
@@ -117,7 +119,7 @@ const lexoraWords=[
 ['early','مبكر'],['late','متأخر'],['always','دائماً'],['never','أبداً'],['sometimes','أحياناً'],['usually','عادةً'],['quickly','بسرعة'],['slowly','ببطء'],['together','معاً'],['already','بالفعل'],
 ['important','مهم'],['different','مختلف'],['possible','ممكن'],['difficult','صعب'],['simple','بسيط'],['special','مميز'],['popular','شائع'],['famous','مشهور'],['expensive','غالي'],['comfortable','مريح']
 ];
-const lexoraProgress=JSON.parse(localStorage.getItem('lexora_progress_v2')||'{}');
+const lexoraMistakes=JSON.parse(localStorage.getItem('lexora_mistakes')||'[]');\nconst lexoraProgress=JSON.parse(localStorage.getItem('lexora_progress_v2')||'{}');
 let gameMode='practice',stageIndex=0,heartState=JSON.parse(localStorage.getItem('lexora_hearts')||'{"count":5,"at":Date.now()}');
 function saveProgress(){localStorage.setItem('lexora_progress_v2',JSON.stringify(lexoraProgress));}
 function gameProgress(id){return lexoraProgress[id]||(lexoraProgress[id]={unlocked:1,stages:{},resume:0,best:0,played:0});}
@@ -155,9 +157,10 @@ function playQuestion(){
  if(q.type==='choice'||q.type==='listen')body+='<div class="prompt">'+q.display+'</div>'+(q.type==='listen'?'<div class="actions"><button class="secondary" id="playAudio">🔊 تشغيل النطق</button></div>':'')+'<div class="answers">'+q.opts.map(x=>'<button class="answer" data-answer="'+encodeURIComponent(x)+'">'+x+'</button>').join('')+'</div>';
  else if(q.type==='spell')body+='<div class="prompt">'+q.display+'</div><input class="field" id="typedAnswer" autocomplete="off" placeholder="اكتب الكلمة هنا">';
  else body+='<div class="wordbank" id="sentenceBank">'+q.parts.map((x,i)=>'<button class="word" data-part="'+i+'">'+x+'</button>').join('')+'</div><div class="sentence" id="sentenceAnswer"></div>';
- body+='<div class="feedback" id="feedback"></div><div class="actions"><button class="primary" id="submitAnswer" '+(q.type==='choice'||q.type==='listen'?'disabled':'')+'>تحقّق من الإجابة</button></div>';
+ body+='<div class="featureactions" style="justify-content:center"><button class="smallbtn" id="useHint">💡 تلميح · 5 XP</button></div><div class="feedback" id="feedback"></div><div class="actions"><button class="primary" id="submitAnswer" '+(q.type==='choice'||q.type==='listen'?'disabled':'')+'>تحقّق من الإجابة</button></div>';
  open(g.title,body);
- let chosen=null,parts=[];
+ let chosen=null,parts=[],hintUsed=false;
+ $('useHint').onclick=()=>{if(hintUsed)return;if(xp<5){$('feedback').textContent='تحتاج إلى 5 XP لاستخدام التلميح.';return}xp-=5;localStorage.setItem('lexora_xp',xp);renderStats();hintUsed=true;let tip=q.type==='spell'?'يبدأ الجواب بالحرف: '+q.answer[0].toUpperCase():q.type==='sentence'?'ابدأ بالفاعل أو الضمير إن وجد.':'الحرف الأول من الإجابة: '+q.answer[0];$('feedback').textContent='💡 '+tip;$('feedback').className='feedback';$('useHint').disabled=true;};
  if(q.type==='choice'||q.type==='listen'){$('gameBody').querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>{chosen=decodeURIComponent(b.dataset.answer);$('gameBody').querySelectorAll('.answer').forEach(x=>x.classList.toggle('selected',x===b));$('submitAnswer').disabled=false;});}
  if(q.type==='listen')$('playAudio').onclick=()=>{if('speechSynthesis'in window){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(q.spoken);u.lang='en-US';u.rate=.82;speechSynthesis.speak(u);}};
  if(q.type==='sentence')$('sentenceBank').querySelectorAll('[data-part]').forEach(b=>b.onclick=()=>{if(b.disabled)return;parts.push(q.parts[+b.dataset.part]);b.disabled=true;$('sentenceAnswer').textContent=parts.join(' ');});
@@ -166,7 +169,7 @@ function playQuestion(){
   if(!answer){$('feedback').textContent='اختر أو اكتب إجابتك أولاً.';return;}
   const ok=answer.toLowerCase()===q.answer.toLowerCase();
   if(ok){session.score++;$('feedback').textContent='إجابة صحيحة! ممتاز 👏';$('feedback').className='feedback good';}
-  else{session.wrong++;$('feedback').textContent='الإجابة الصحيحة: '+q.answer;$('feedback').className='feedback bad';if(session.mode==='challenge')spendHeart();}
+  else{session.wrong++;lexoraMistakes.unshift({game:session.id,prompt:q.prompt,display:q.display||'',answer:q.answer,at:Date.now()});if(lexoraMistakes.length>100)lexoraMistakes.length=100;localStorage.setItem('lexora_mistakes',JSON.stringify(lexoraMistakes));$('feedback').textContent='الإجابة الصحيحة: '+q.answer;$('feedback').className='feedback bad';if(session.mode==='challenge')spendHeart();}
   const skill=({vocab:'vocabulary',spell:'vocabulary',sentence:'grammar',listen:'listening',dialogue:'conversation',reading:'reading',challenge:'grammar'})[session.id];
   let current=skillScores[skill]||0;let attempts=Number(localStorage.getItem('lexora_skill_attempts_'+skill)||0),correct=Number(localStorage.getItem('lexora_skill_correct_'+skill)||0);attempts++;if(ok)correct++;skillScores[skill]=Math.round(correct/attempts*100);localStorage.setItem('lexora_skill_attempts_'+skill,attempts);localStorage.setItem('lexora_skill_correct_'+skill,correct);
   $('submitAnswer').disabled=true;
