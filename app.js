@@ -1117,7 +1117,7 @@ loadCourseCatalog();
   const intro=$('answerFeedback');intro.hidden=false;intro.replaceChildren();
   const h=document.createElement('strong');h.textContent='🎬 '+ep.title;
   const p=document.createElement('p');p.textContent=ep.voice+' ستخوض '+ep.questions.length+' تحدياً متنوعاً. استمع جيداً وابدأ!';
-  const b=document.createElement('button');b.className='game-primary';b.textContent='ابدأ القصة';b.onclick=()=>{intro.hidden=true;render();speak(ep.voice);};
+  const b=document.createElement('button');b.className='game-primary';b.textContent='ابدأ القصة';b.onclick=()=>{intro.hidden=true;render();};
   intro.append(h,p,b);$('answerOptions').replaceChildren();$('nextQuestion').hidden=true;
   stage.scrollIntoView({behavior:'smooth',block:'start'});stats();
  }
@@ -1132,7 +1132,7 @@ loadCourseCatalog();
   $('answerFeedback').hidden=true;$('answerFeedback').replaceChildren();$('nextQuestion').hidden=true;
   const opts=$('answerOptions');opts.replaceChildren();
   [...q.options].sort(()=>Math.random()-.5).forEach(word=>{const b=document.createElement('button');b.type='button';b.className='answer-option';b.textContent=word;b.onclick=()=>answer(word,b);opts.append(b);});
-  speak(q.before+(q.answer? q.answer:'')+q.after);
+  // The character speaks only after the learner submits an answer.
   stats();
  }
  function answer(word,button){
@@ -1276,13 +1276,25 @@ loadCourseCatalog();
 })();
 (()=>{
  const bank=window.LEXORA_PRACTICE_BANK;if(!bank)return;const el=id=>document.getElementById(id),intro=el('detectiveIntro'),player=el('detectivePlayer');if(!intro||player.dataset.ready)return;player.dataset.ready='1';
- const data=bank.daily.slice(0,50).concat(bank.street.slice(0,50)).map((x,i)=>({q:x.q[0],a:x.q[1],bad:[x.q[3],x.q[4]],id:i}));
+ const sets=[
+  {q:'What is your name?',ar:'ما اسمك؟',values:['Adam','Sara','Omar','Mia','Lina','Noah','Yara','Max','Ali','Emma'],make:v=>'My name is '+v+'.'},
+  {q:'Where are you from?',ar:'من أين أنت؟',values:['Jordan','Canada','Egypt','Spain','Japan','Italy','Brazil','France','Turkey','Australia'],make:v=>'I am from '+v+'.'},
+  {q:'Where do you live?',ar:'أين تسكن؟',values:['Amman','Aqaba','Irbid','London','Toronto','Cairo','Madrid','Tokyo','Rome','Paris'],make:v=>'I live in '+v+'.'},
+  {q:'What is your job?',ar:'ما مهنتك؟',values:['a teacher','a student','a doctor','a driver','a chef','a photographer','an engineer','a nurse','a pilot','a designer'],make:v=>'I am '+v+'.'},
+  {q:'What time do you wake up?',ar:'متى تستيقظ؟',values:['six o’clock','six thirty','seven o’clock','seven thirty','eight o’clock','five thirty','nine o’clock','half past six','quarter to seven','quarter past eight'],make:v=>'I wake up at '+v+'.'},
+  {q:'What did you see?',ar:'ماذا رأيت؟',values:['a red car','a tall man','a black bag','a broken window','a blue bicycle','a small dog','a bright light','a white van','a green jacket','a silver key'],make:v=>'I saw '+v+'.'},
+  {q:'Where were you last night?',ar:'أين كنت الليلة الماضية؟',values:['the station','the café','the park','the library','the hotel','the supermarket','the school','the bus stop','the museum','the bank'],make:v=>'I was at '+v+'.'},
+  {q:'How did you get here?',ar:'كيف وصلت إلى هنا؟',values:['by bus','by taxi','by train','by bicycle','on foot','by car','by subway','by motorcycle','by tram','by ferry'],make:v=>'I came '+v+'.'},
+  {q:'Who was with you?',ar:'من كان معك؟',values:['my brother','my sister','my friend','my father','my mother','my colleague','my cousin','my neighbor','my teacher','my partner'],make:v=>'I was with '+v+'.'},
+  {q:'Why were you there?',ar:'لماذا كنت هناك؟',values:['to meet a friend','to buy some food','to visit my family','to go to work','to study English','to catch a train','to ask for help','to see a doctor','to find a hotel','to return a book'],make:v=>'I was there '+v+'.'}
+ ];
+ const data=sets.flatMap((set)=>set.values.map(value=>({q:set.q,a:set.make(value),ar:set.ar,bad:[]})));
  let order=[],n=0,score=0,time=10,timer=null,chosen=[],locked=false;const shuffle=a=>a.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(y=>y.x);
  function stop(){if(timer){clearInterval(timer);timer=null;}}
  function say(line){if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(line);u.lang='en-US';u.rate=.88;u.pitch=1.13;const v=speechSynthesis.getVoices().find(x=>/^en-US/i.test(x.lang)&&/female|samantha|zira|aria|jenny/i.test(x.name));if(v)u.voice=v;speechSynthesis.speak(u);}
  function renderAnswer(){const box=el('detectiveBuiltAnswer');box.replaceChildren();chosen.forEach((t,i)=>{const b=document.createElement('button');b.className='detective-answer-tile';b.textContent=t.word+' ×';b.onclick=()=>{if(locked)return;chosen.splice(i,1);renderAnswer();};box.append(b);});el('detectiveKeyboard').querySelectorAll('button').forEach(b=>{b.disabled=chosen.some(x=>String(x.id)===b.dataset.tile);});}
  function submit(timeout){if(locked)return;locked=true;stop();const c=order[n],answer=chosen.map(x=>x.word).join(' '),ok=answer.toLowerCase()===c.a.toLowerCase();if(ok)score++;el('detectiveKeyboard').querySelectorAll('button').forEach(b=>b.disabled=true);el('detectiveSubmit').disabled=true;el('detectiveFeedback').hidden=false;el('detectiveFeedback').textContent=(timeout?'انتهى الوقت. ':ok?'إجابة صحيحة! ':'ليست صحيحة. ')+'الإجابة الصحيحة: '+c.a;say(c.q.replace(/___|_{2,}/g,c.a));el('detectiveNext').hidden=false;el('detectiveNext').textContent=n===99?'إنهاء التحقيق':'السؤال التالي ←';}
- function draw(){stop();time=10;chosen=[];locked=false;const c=order[n];el('detectiveProgressText').textContent='السؤال '+(n+1)+' من 100';el('detectiveMeter').style.width=(n/100*100)+'%';el('detectiveTimer').textContent=time;el('detectiveTimer').classList.remove('urgent');el('detectiveQuestion').textContent='أكمل إفادة الشاهد: '+c.q;el('detectiveArabic').textContent='اختر الكلمات لتكوين الإجابة الصحيحة.';el('detectiveFeedback').hidden=true;el('detectiveNext').hidden=true;el('detectiveSubmit').disabled=false;renderAnswer();const correct=c.a.trim().split(/\s+/),wrong=c.bad.flatMap(x=>x.trim().split(/\s+/));let pool=shuffle(correct.concat(wrong));while(pool.length<correct.length+3)pool=pool.concat(['please','the','is','at']);pool=shuffle(pool).slice(0,Math.max(4,correct.length+3));const box=el('detectiveKeyboard');box.replaceChildren();pool.forEach((word,id)=>{const b=document.createElement('button');b.className='detective-key';b.textContent=word;b.dataset.tile=id;b.onclick=()=>{if(locked||chosen.some(x=>x.id===id))return;chosen.push({word,id});renderAnswer();};box.append(b);});timer=setInterval(()=>{time--;el('detectiveTimer').textContent=time;if(time<=3)el('detectiveTimer').classList.add('urgent');if(time<=0)submit(true);},1000);}
+ function draw(){stop();time=10;chosen=[];locked=false;const c=order[n];el('detectiveProgressText').textContent='السؤال '+(n+1)+' من 100';el('detectiveMeter').style.width=(n/100*100)+'%';el('detectiveTimer').textContent=time;el('detectiveTimer').classList.remove('urgent');el('detectiveQuestion').textContent='أكمل إفادة الشاهد: '+c.q;el('detectiveArabic').textContent=c.ar+' · كوّن ردّك باللغة الإنجليزية.';el('detectiveFeedback').hidden=true;el('detectiveNext').hidden=true;el('detectiveSubmit').disabled=false;renderAnswer();const correct=c.a.trim().split(/\s+/);const decoys=shuffle(data.flatMap(x=>x.a.split(/\s+/)).filter(w=>!correct.includes(w)&&w.length>1));const pool=shuffle(correct.concat([...new Set(decoys)].slice(0,4)));const box=el('detectiveKeyboard');box.replaceChildren();pool.forEach((word,id)=>{const b=document.createElement('button');b.className='detective-key';b.textContent=word;b.dataset.tile=id;b.onclick=()=>{if(locked||chosen.some(x=>x.id===id))return;chosen.push({word,id});renderAnswer();};box.append(b);});timer=setInterval(()=>{time--;el('detectiveTimer').textContent=time;if(time<=3)el('detectiveTimer').classList.add('urgent');if(time<=0)submit(true);},1000);}
  function start(){stop();order=shuffle(data);n=0;score=0;intro.hidden=true;el('detectiveFinish').hidden=true;player.hidden=false;draw();player.scrollIntoView({behavior:'smooth',block:'start'});}
  el('detectiveStart').onclick=start;el('detectiveReplay').onclick=start;el('detectiveSubmit').onclick=()=>submit(false);el('detectiveClear').onclick=()=>{if(!locked){chosen=[];renderAnswer();}};el('detectiveExit').onclick=()=>{stop();if(window.speechSynthesis)speechSynthesis.cancel();player.hidden=true;intro.hidden=false;};el('detectiveNext').onclick=()=>{if(n<99){n++;draw();}else{stop();player.hidden=true;el('detectiveFinish').hidden=false;el('detectiveFinalScore').textContent='نتيجتك: '+score+' من 100';}};
 })();
