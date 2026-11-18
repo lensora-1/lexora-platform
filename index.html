@@ -181,8 +181,11 @@ function storeCountdown(){
  const d=Math.floor(left/86400000),h=Math.floor(left%86400000/3600000),m=Math.floor(left%3600000/60000),sec=Math.floor(left%60000/1000);
  const node=$('storeCountdown');
  if(node)node.textContent=left>0?(d+' يوم · '+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')):'انتهى العرض';
- const banner=$('storePromoBanner');
- if(banner&&left<=0)banner.innerHTML='<div class="store-expired">انتهى عرض التدبيل. عادت كميات العملات إلى أسعارها الأساسية.</div>';
+ if(left<=0&&$('storeCountdown')){
+  if(storeCountdownTimer){clearInterval(storeCountdownTimer);storeCountdownTimer=null}
+  openCoinStore();
+  return;
+ }
 }
 function openCoinStore(){
  const active=PROMO_END>Date.now();
