@@ -1139,7 +1139,7 @@ loadCourseCatalog();
   if(answered)return;answered=true;const q=episodes[epIndex].questions[qIndex],ok=word===q.answer;
   const blank=$('sentencePrompt').querySelector('b');blank.textContent=' '+q.answer+' ';blank.classList.add(ok?'blank-correct':'blank-wrong');
   $('answerOptions').querySelectorAll('button').forEach(b=>{b.disabled=true;if(b.textContent===q.answer)b.classList.add('option-correct');else if(b===button)b.classList.add('option-wrong');});
-  if(ok){correct++;xp+=8;}else{hearts=Math.max(0,hearts-.5);}
+  if(ok){correct++;xp+=2;window.dispatchEvent(new CustomEvent('lexora:xp',{detail:{amount:2}}));}else{hearts=Math.max(0,hearts-.5);}
   const f=$('answerFeedback');f.hidden=false;f.replaceChildren();
   const title=document.createElement('strong');title.textContent=ok?'أحسنت! إجابة صحيحة 🌟':'خصم نصف قلب ❤️‍🩹';
   const p=document.createElement('p');p.textContent=q.why;
@@ -1269,7 +1269,7 @@ loadCourseCatalog();
  const worlds={daily:{title:'أسرار الحياة اليومية',items:bank.daily},street:{title:'مغامرة في المدينة',items:bank.street},mix:{title:'سرّ المدينة الغامض',items:bank.daily.slice(0,50).concat(bank.street.slice(0,50))}};
  let active='daily',items=[],n=0,points=0,locked=false;
  function say(line){if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(line);u.lang='en-US';u.rate=.88;u.pitch=1.12;const v=speechSynthesis.getVoices().find(x=>/^en-US/i.test(x.lang)&&/female|samantha|zira|aria|jenny/i.test(x.name));if(v)u.voice=v;speechSynthesis.speak(u);}
- function draw(){locked=false;const q=items[n].q;el('cartoonActiveTitle').textContent=worlds[active].title;el('cartoonCounter').textContent=(n+1)+' / 100';el('cartoonProgress').style.width=(n/100*100)+'%';el('cartoonPrompt').textContent=q[0];el('cartoonArabic').textContent=q[2];el('cartoonResult').hidden=true;el('cartoonNext').hidden=true;const box=el('cartoonChoices');box.replaceChildren();[q[1],q[3],q[4]].sort(()=>Math.random()-.5).forEach(word=>{const b=document.createElement('button');b.className='cartoon-choice';b.textContent=word;b.onclick=()=>{if(locked)return;locked=true;const ok=word===q[1];if(ok)points++;box.querySelectorAll('button').forEach(x=>{x.disabled=true;if(x.textContent===q[1])x.classList.add('correct');else if(x===b)x.classList.add('wrong');});el('cartoonResult').hidden=false;el('cartoonResult').textContent=(ok?'إجابة صحيحة! ':'الإجابة الصحيحة: ')+q[1]+' — '+q[2];say(q[0].replace(/___|_{2,}/g,q[1]));el('cartoonNext').hidden=false;el('cartoonNext').textContent=n===99?'عرض النتيجة':'المشهد التالي ←';};box.append(b);});}
+ function draw(){locked=false;const q=items[n].q;el('cartoonActiveTitle').textContent=worlds[active].title;el('cartoonCounter').textContent=(n+1)+' / 100';el('cartoonProgress').style.width=(n/100*100)+'%';el('cartoonPrompt').textContent=q[0];el('cartoonArabic').textContent=q[2];el('cartoonResult').hidden=true;el('cartoonNext').hidden=true;const box=el('cartoonChoices');box.replaceChildren();[q[1],q[3],q[4]].sort(()=>Math.random()-.5).forEach(word=>{const b=document.createElement('button');b.className='cartoon-choice';b.textContent=word;b.onclick=()=>{if(locked)return;locked=true;const ok=word===q[1];if(ok){points++;window.dispatchEvent(new CustomEvent('lexora:xp',{detail:{amount:2}}));}box.querySelectorAll('button').forEach(x=>{x.disabled=true;if(x.textContent===q[1])x.classList.add('correct');else if(x===b)x.classList.add('wrong');});el('cartoonResult').hidden=false;el('cartoonResult').textContent=(ok?'إجابة صحيحة! ':'الإجابة الصحيحة: ')+q[1]+' — '+q[2];say(q[0].replace(/___|_{2,}/g,q[1]));el('cartoonNext').hidden=false;el('cartoonNext').textContent=n===99?'عرض النتيجة':'المشهد التالي ←';};box.append(b);});}
  shelf.querySelectorAll('[data-cartoon]').forEach(b=>b.onclick=()=>{active=b.dataset.cartoon;items=worlds[active].items.slice(0,100);n=0;points=0;shelf.hidden=true;player.hidden=false;draw();player.scrollIntoView({behavior:'smooth',block:'start'});});
  el('cartoonNext').onclick=()=>{if(n<99){n++;draw();}else{el('cartoonPrompt').textContent='انتهت المغامرة!';el('cartoonArabic').textContent='نتيجتك: '+points+' من 100';el('cartoonChoices').replaceChildren();el('cartoonResult').hidden=false;el('cartoonResult').textContent='أكملت جميع تحديات هذا العالم.';el('cartoonNext').hidden=true;}};
  el('cartoonBack').onclick=()=>{if(window.speechSynthesis)speechSynthesis.cancel();player.hidden=true;shelf.hidden=false;};
@@ -1289,12 +1289,63 @@ loadCourseCatalog();
   {questions:['Why were you there?','What was your reason for going there?','Why did you visit that place?','What were you trying to do there?','Were you meeting someone?','What brought you to that location?','What was your purpose there?','Why did you go to that area?','What did you need at that place?','Explain why you were there.'],ar:'لماذا كنت هناك؟',values:['to meet a friend','to buy some food','to visit my family','to go to work','to study English','to catch a train','to ask for help','to see a doctor','to find a hotel','to return a book'],make:v=>'I was there '+v+'.'}
  ];
  const data=sets.flatMap((set)=>set.values.map((value,i)=>({q:set.questions[i],a:set.make(value),ar:set.ar,bad:[]})));
- let order=[],n=0,score=0,time=10,timer=null,chosen=[],locked=false;const shuffle=a=>a.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(y=>y.x);
- function stop(){if(timer){clearInterval(timer);timer=null;}}
+ let order=[],n=0,score=0,chosen=[],locked=false;const shuffle=a=>a.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(y=>y.x);
+ function stop(){}
  function say(line){if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(line);u.lang='en-US';u.rate=.88;u.pitch=1.13;const v=speechSynthesis.getVoices().find(x=>/^en-US/i.test(x.lang)&&/female|samantha|zira|aria|jenny/i.test(x.name));if(v)u.voice=v;speechSynthesis.speak(u);}
  function renderAnswer(){const box=el('detectiveBuiltAnswer');box.replaceChildren();chosen.forEach((t,i)=>{const b=document.createElement('button');b.className='detective-answer-tile';b.textContent=t.word+' ×';b.onclick=()=>{if(locked)return;chosen.splice(i,1);renderAnswer();};box.append(b);});el('detectiveKeyboard').querySelectorAll('button').forEach(b=>{b.disabled=chosen.some(x=>String(x.id)===b.dataset.tile);});}
- function submit(timeout){if(locked)return;locked=true;stop();const c=order[n],answer=chosen.map(x=>x.word).join(' '),ok=answer.toLowerCase()===c.a.toLowerCase();if(ok)score++;el('detectiveKeyboard').querySelectorAll('button').forEach(b=>b.disabled=true);el('detectiveSubmit').disabled=true;el('detectiveFeedback').hidden=false;el('detectiveFeedback').textContent=(timeout?'انتهى الوقت. ':ok?'إجابة صحيحة! ':'ليست صحيحة. ')+'الإجابة الصحيحة: '+c.a;say(c.a);el('detectiveNext').hidden=false;el('detectiveNext').textContent=n===99?'إنهاء التحقيق':'السؤال التالي ←';}
- function draw(){stop();time=10;chosen=[];locked=false;const c=order[n];el('detectiveProgressText').textContent='السؤال '+(n+1)+' من 100';el('detectiveMeter').style.width=(n/100*100)+'%';el('detectiveTimer').textContent=time;el('detectiveTimer').classList.remove('urgent');el('detectiveQuestion').textContent='أكمل إفادة الشاهد: '+c.q;el('detectiveArabic').textContent=c.ar+' · كوّن ردّك باللغة الإنجليزية.';el('detectiveFeedback').hidden=true;el('detectiveNext').hidden=true;el('detectiveSubmit').disabled=false;renderAnswer();const correct=c.a.trim().split(/\s+/);const decoys=shuffle(data.flatMap(x=>x.a.split(/\s+/)).filter(w=>!correct.includes(w)&&w.length>1));const pool=shuffle(correct.concat([...new Set(decoys)].slice(0,4)));const box=el('detectiveKeyboard');box.replaceChildren();pool.forEach((word,id)=>{const b=document.createElement('button');b.className='detective-key';b.textContent=word;b.dataset.tile=id;b.onclick=()=>{if(locked||chosen.some(x=>x.id===id))return;chosen.push({word,id});renderAnswer();};box.append(b);});timer=setInterval(()=>{time--;el('detectiveTimer').textContent=time;if(time<=3)el('detectiveTimer').classList.add('urgent');if(time<=0)submit(true);},1000);}
+ function submit(){if(locked)return;locked=true;const c=order[n],answer=chosen.map(x=>x.word).join(' '),ok=answer.toLowerCase()===c.a.toLowerCase();if(ok){score++;window.dispatchEvent(new CustomEvent('lexora:xp',{detail:{amount:2}}));}el('detectiveKeyboard').querySelectorAll('button').forEach(b=>b.disabled=true);el('detectiveSubmit').disabled=true;el('detectiveFeedback').hidden=false;el('detectiveFeedback').textContent=(ok?'إجابة صحيحة! ':'ليست صحيحة. ')+'الإجابة الصحيحة: '+c.a;say(c.a);el('detectiveNext').hidden=false;el('detectiveNext').textContent=n===99?'إنهاء التحقيق':'السؤال التالي ←';}
+ function draw(){chosen=[];locked=false;const c=order[n];el('detectiveProgressText').textContent='السؤال '+(n+1)+' من 100';el('detectiveMeter').style.width=(n/100*100)+'%';el('detectiveQuestion').textContent='أكمل إفادة الشاهد: '+c.q;el('detectiveArabic').textContent=c.ar+' · كوّن ردّك باللغة الإنجليزية.';el('detectiveFeedback').hidden=true;el('detectiveNext').hidden=true;el('detectiveSubmit').disabled=false;renderAnswer();const correct=c.a.trim().split(/\s+/);const decoys=shuffle(data.flatMap(x=>x.a.split(/\s+/)).filter(w=>!correct.includes(w)&&w.length>1));const pool=shuffle(correct.concat([...new Set(decoys)].slice(0,4)));const box=el('detectiveKeyboard');box.replaceChildren();pool.forEach((word,id)=>{const b=document.createElement('button');b.className='detective-key';b.textContent=word;b.dataset.tile=id;b.onclick=()=>{if(locked||chosen.some(x=>x.id===id))return;chosen.push({word,id});renderAnswer();};box.append(b);});}
  function start(){stop();order=shuffle(data);n=0;score=0;intro.hidden=true;el('detectiveFinish').hidden=true;player.hidden=false;draw();player.scrollIntoView({behavior:'smooth',block:'start'});}
- el('detectiveStart').onclick=start;el('detectiveReplay').onclick=start;el('detectiveSubmit').onclick=()=>submit(false);el('detectiveClear').onclick=()=>{if(!locked){chosen=[];renderAnswer();}};el('detectiveExit').onclick=()=>{stop();if(window.speechSynthesis)speechSynthesis.cancel();player.hidden=true;intro.hidden=false;};el('detectiveNext').onclick=()=>{if(n<99){n++;draw();}else{stop();player.hidden=true;el('detectiveFinish').hidden=false;el('detectiveFinalScore').textContent='نتيجتك: '+score+' من 100';}};
+ el('detectiveStart').onclick=start;el('detectiveReplay').onclick=start;el('detectiveSubmit').onclick=()=>submit();el('detectiveClear').onclick=()=>{if(!locked){chosen=[];renderAnswer();}};el('detectiveExit').onclick=()=>{if(window.speechSynthesis)speechSynthesis.cancel();player.hidden=true;intro.hidden=false;};el('detectiveNext').onclick=()=>{if(n<99){n++;draw();}else{stop();player.hidden=true;el('detectiveFinish').hidden=false;el('detectiveFinalScore').textContent='نتيجتك: '+score+' من 100';}};
+})();
+
+
+// LEXORA horizontal learning worlds, learner XP and gated games.
+(()=>{
+ const main=document.querySelector('main');if(!main||main.dataset.swipeReady)return;main.dataset.swipeReady='1';
+ const groups=[
+  {id:'storiesPage',title:'عالم القصص',icon:'📖',ids:['gameWorld','cartoonLibrary']},
+  {id:'learningPage',title:'الدروس التعليمية',icon:'🎓',ids:['hero','courses','method','levels','pro','curriculum']},
+  {id:'gamesPage',title:'عالم الألعاب',icon:'🎮',ids:['detectiveGame']}
+ ];
+ const shell=document.createElement('div');shell.className='learning-swipe-shell';
+ const nav=document.createElement('div');nav.className='learning-swipe-nav';nav.setAttribute('aria-label','أقسام LEXORA');
+ const track=document.createElement('div');track.className='learning-swipe-track';track.id='learningSwipeTrack';
+ groups.forEach((g,index)=>{
+  const page=document.createElement('div');page.className='learning-swipe-page';page.id=g.id;
+  const button=document.createElement('button');button.type='button';button.className='learning-swipe-tab'+(index===0?' active':'');button.dataset.page=String(index);button.innerHTML='<span>'+g.icon+'</span><b>'+g.title+'</b>';nav.append(button);
+  g.ids.forEach(id=>{const node=document.getElementById(id);if(node)page.append(node);});
+  track.append(page);
+ });
+ const stats=document.querySelector('main > .stats');if(stats)document.getElementById('learningPage').insertBefore(stats,document.getElementById('method'));
+ const hint=document.createElement('p');hint.className='swipe-hint';hint.textContent='اسحب الشاشة يميناً أو يساراً للتنقل بين الأقسام ←';shell.append(nav,track,hint);main.prepend(shell);
+ const tabs=[...nav.querySelectorAll('button')];
+ function setPage(i){const page=track.children[Math.max(0,Math.min(groups.length-1,i))];page.scrollIntoView({behavior:'smooth',block:'nearest',inline:'start'});tabs.forEach((b,j)=>b.classList.toggle('active',j===i));}
+ tabs.forEach((b,i)=>b.addEventListener('click',()=>setPage(i)));
+ let scrollTick=false;track.addEventListener('scroll',()=>{if(scrollTick)return;scrollTick=true;requestAnimationFrame(()=>{const center=track.getBoundingClientRect().left+track.clientWidth/2;let best=0,distance=Infinity;[...track.children].forEach((p,i)=>{const r=p.getBoundingClientRect(),d=Math.abs((r.left+r.right)/2-center);if(d<distance){distance=d;best=i;}});tabs.forEach((b,j)=>b.classList.toggle('active',j===best));scrollTick=false;});},{passive:true});
+ document.querySelectorAll('.topbar nav a').forEach(a=>a.addEventListener('click',e=>{const target=document.querySelector(a.getAttribute('href'));if(!target)return;const page=target.closest('.learning-swipe-page');if(page){e.preventDefault();setPage([...track.children].indexOf(page));setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'start'}),260);}}));
+})();
+
+(()=>{
+ const el=id=>document.getElementById(id);
+ const XP_KEY_PREFIX='lexora-xp-v1:';
+ let userKey='guest',xp=0,ready=false;
+ const thresholds=[0,50,120,210,320,450,600,770,960,1170];
+ function levelFor(value){let level=1;for(let i=1;i<thresholds.length;i++){if(value>=thresholds[i])level=i+1;else break;}if(value>=thresholds[9]){let remaining=value-thresholds[9],next=11;while(remaining>=250+(next-11)*50){remaining-=250+(next-11)*50;next++;}level=next-1;}return level;}
+ function nextThreshold(level){if(level<10)return thresholds[level];let total=thresholds[9];for(let l=11;l<=level;l++)total+=250+(l-11)*50;return total+250+(level-10)*50;}
+ function refresh(){
+  const level=levelFor(xp),next=nextThreshold(level),base=level===1?0:(level<=10?thresholds[level-1]:nextThreshold(level-1));
+  let badge=el('accountLevelBadge');if(!badge){badge=document.createElement('div');badge.id='accountLevelBadge';badge.className='account-level-badge';const stats=document.querySelector('.game-stats-row');if(stats)stats.append(badge);}
+  badge.innerHTML='<strong>LV '+level+'</strong><span>'+xp+' XP</span><i><b style="width:'+Math.max(0,Math.min(100,((xp-base)/(next-base))*100))+'%"></b></i><small>'+(next-xp)+' XP للمستوى التالي</small>';
+  const game=el('detectiveGame');if(game){
+   let gate=el('gamesLevelGate');if(!gate){gate=document.createElement('div');gate.id='gamesLevelGate';gate.className='games-level-gate';game.insertBefore(gate,el('detectiveIntro'));}
+   const locked=level<3;gate.hidden=!locked;
+   if(locked){el('detectiveIntro').hidden=true;el('detectivePlayer').hidden=true;el('detectiveFinish').hidden=true;gate.innerHTML='<span>🔒</span><h3>الألعاب تفتح عند LV 3</h3><p>اجمع الخبرة من القصص والدروس حتى تصل إلى المستوى الثالث.</p><strong>مستواك الحالي: LV '+level+'</strong><small>تحتاج '+Math.max(0,thresholds[2]-xp)+' XP إضافية</small>';}
+  }
+ }
+ async function identify(){try{const result=await window.supabase?.auth?.getUser?.();const id=result?.data?.user?.id;if(id)userKey=id;}catch(e){}try{xp=Number(localStorage.getItem(XP_KEY_PREFIX+userKey)||0);}catch(e){xp=0;}ready=true;refresh();}
+ window.addEventListener('lexora:xp',e=>{if(!ready)return;const amount=Math.max(0,Number(e.detail?.amount)||0);xp+=amount;try{localStorage.setItem(XP_KEY_PREFIX+userKey,String(xp));}catch(e){}refresh();});
+ window.LEXORA_ACCOUNT_PROGRESS={getXP:()=>xp,getLevel:()=>levelFor(xp),addXP:amount=>window.dispatchEvent(new CustomEvent('lexora:xp',{detail:{amount}}))};
+ identify();
+ if(el('detectiveTimer'))el('detectiveTimer').hidden=true;
 })();
